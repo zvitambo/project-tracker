@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { TRANSACTION_STATUS } = require("../utils/enum");
+const crypto = require("crypto");
 
 const DebitTransactionSchema = new mongoose.Schema(
   {
@@ -34,8 +35,15 @@ const DebitTransactionSchema = new mongoose.Schema(
       ref: "User",
       required: [true, "Please provide user"],
     },
+    uuid: {
+      type: String,
+    },
   },
   { timestamps: true, toJSON: { getters: true } }
 );
+
+DebitTransactionSchema.pre("save", async function () {
+  this.uuid = crypto.randomUUID();
+});
 
 module.exports = mongoose.model("DebitTransaction", DebitTransactionSchema);

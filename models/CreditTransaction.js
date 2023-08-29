@@ -3,6 +3,7 @@ const {
   TRANSACTION_STATUS,
   TRANSACTION_TYPE,
 } = require("../utils/enum");
+const crypto = require("crypto");
 
 const CreditTransactionSchema = new mongoose.Schema(
   {
@@ -44,8 +45,16 @@ const CreditTransactionSchema = new mongoose.Schema(
       ref: "User",
       required: [true, "Please provide user"],
     },
+    uuid: {
+      type: String,
+    },
   },
   { timestamps: true, toJSON: { getters: true } }
 );
+
+
+CreditTransactionSchema.pre("save", async function () {
+  this.uuid = crypto.randomUUID();
+});
 
 module.exports = mongoose.model("CreditTransaction", CreditTransactionSchema);
