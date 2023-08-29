@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 
 const UserSchema = new mongoose.Schema({
   name: {
@@ -38,9 +39,13 @@ const UserSchema = new mongoose.Schema({
     trim: true,
     default: "my city",
   },
+  uuid: {
+    type: String,
+  },
 });
 
 UserSchema.pre("save", async function () {
+  this.uuid = crypto.randomUUID();
   if (!this.isModified("password")) return;
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
