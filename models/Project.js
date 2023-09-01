@@ -22,7 +22,7 @@ const ProjectSchema = new mongoose.Schema(
       minlength: 12,
       required: [true, "Please provide a project description"],
     },
-    category: {
+    projectCategory: {
       type: String,
       enum: [
         PROJECT_CATEGORY.FAMILY_FUNCTION,
@@ -30,7 +30,7 @@ const ProjectSchema = new mongoose.Schema(
       ],
       default: PROJECT_CATEGORY.FAMILY_HOME_RENOVATIONS,
     },
-    status: {
+    projectStatus: {
       type: String,
       enum: [
         PROJECT_STATUS.IN_PROGRESS,

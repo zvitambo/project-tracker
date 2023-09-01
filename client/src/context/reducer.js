@@ -28,6 +28,16 @@ import {
   SHOW_STATS_SUCCESS,
   CLEAR_FILTERS,
   CHANGE_PAGE,
+  CREATE_PROJECT_BEGIN,
+  CREATE_PROJECT_SUCCESS,
+  CREATE_PROJECT_ERROR,
+  GET_PROJECTS_BEGIN,
+  GET_PROJECTS_SUCCESS,
+  SET_EDIT_PROJECT,
+  DELETE_PROJECT_BEGIN,
+  EDIT_PROJECT_BEGIN,
+  EDIT_PROJECT_SUCCESS,
+  EDIT_PROJECT_ERROR,
 } from "./actions";
 
 import { initialState } from "./appContext";
@@ -139,7 +149,7 @@ const reducer = (state, action) => {
     case HANDLE_CHANGE:
       return {
         ...state,
-        page:1,
+        page: 1,
         [action.payload.name]: action.payload.value,
       };
     case CLEAR_VALUES:
@@ -151,6 +161,11 @@ const reducer = (state, action) => {
         jobType: "full-time",
         status: "pending",
         jobLocation: state.userLocation,
+        name: "",
+        description: "",
+        projectCategory: "",
+        projectStatus: ""
+
       };
       return {
         ...state,
@@ -256,6 +271,83 @@ const reducer = (state, action) => {
       return {
         ...state,
         page: action.payload.page,
+      };
+    //Projects
+    case CREATE_PROJECT_BEGIN:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case CREATE_PROJECT_SUCCESS:
+      return {
+        ...state,
+        showAlert: true,
+        alertType: "success",
+        alertText: "New Project Created!",
+        isLoading: false,
+      };
+    case CREATE_PROJECT_ERROR:
+      return {
+        ...state,
+        isLoading: false,
+        showAlert: true,
+        alertType: "danger",
+        alertText: action.payload.msg,
+      };
+    case GET_PROJECTS_BEGIN:
+      return {
+        ...state,
+        isLoading: true,
+        showAlert: false,
+      };
+    case GET_PROJECTS_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        projects: action.payload.projects,
+        totalProjects: action.payload.totalProjects,
+        numOfPages: action.payload.numOfPages,
+      };
+    case SET_EDIT_PROJECT:
+      const project = state.projects.find(
+        (project) => project._id === action.payload.id
+      );
+      const { _id: projectId, name, description, projectCategory, projectStatus } =
+        project;
+      return {
+        ...state,
+        isEditing: true,
+        editProjectId: projectId,
+        name,
+        description,
+        projectCategory,
+        projectStatus,
+      };
+    case DELETE_PROJECT_BEGIN:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case EDIT_PROJECT_BEGIN:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case EDIT_PROJECT_SUCCESS:
+      return {
+        ...state,
+        showAlert: true,
+        alertType: "success",
+        alertText: "Project Updated Successfully!",
+        isLoading: false,
+      };
+    case EDIT_PROJECT_ERROR:
+      return {
+        ...state,
+        isLoading: false,
+        showAlert: true,
+        alertType: "danger",
+        alertText: action.payload.msg,
       };
     default:
       return state;

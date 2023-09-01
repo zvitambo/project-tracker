@@ -21,7 +21,7 @@ const FeatureSchema = new mongoose.Schema(
       minlength: 12,
       required: [true, "Please provide a feature description"],
     },
-    category: {
+    featureCategory: {
       type: String,
       enum: [
         FEATURE_CATEGORY.NEW_FEATURE,
@@ -30,7 +30,7 @@ const FeatureSchema = new mongoose.Schema(
       ],
       default: FEATURE_CATEGORY.NEW_FEATURE,
     },
-    status: {
+    featureStatus: {
       type: String,
       enum: [
         FEATURE_STATUS.IN_PROGRESS,

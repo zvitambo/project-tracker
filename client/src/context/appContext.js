@@ -32,6 +32,16 @@ import {
   SHOW_STATS_SUCCESS,
   CLEAR_FILTERS,
   CHANGE_PAGE,
+  CREATE_PROJECT_BEGIN,
+  CREATE_PROJECT_SUCCESS,
+  CREATE_PROJECT_ERROR,
+  GET_PROJECTS_BEGIN,
+  GET_PROJECTS_SUCCESS,
+  SET_EDIT_PROJECT,
+  DELETE_PROJECT_BEGIN,
+  EDIT_PROJECT_BEGIN,
+  EDIT_PROJECT_SUCCESS,
+  EDIT_PROJECT_ERROR,
 } from "./actions";
 
 const user = localStorage.getItem("user");
@@ -68,6 +78,21 @@ export const initialState = {
   searchType: "all",
   sort: "lastest",
   sortOptions: ["lastest", "oldest", "a-z", "z-a"],
+  //Projects
+  editProjectId: "",
+  name: "",
+  description: "",
+  projectCategoryOptions: [
+    "Family Home Renovations/Revamping",
+    "Family Function/Event",
+    "Legal Process",
+  ],
+  projectCategory: "Family Home Renovations/Revamping",
+  projectStatusOptions: ["In Progress", "Finished", "On Hold"],
+  projectStatus: "In Progress",
+  projects: [],
+  totalProjects: 0,
+  //Features
 };
 
 const AppContext = React.createContext();
@@ -227,6 +252,28 @@ const AppProvider = ({ children }) => {
     clearAlert();
   };
 
+  const createProject = async () => {
+    dispatch({ type: CREATE_PROJECT_BEGIN });
+    try {
+      const { name, description, projectCategory, projectStatus } = state;
+      await authFetch.post("/projects", {
+        name,
+        description,
+        projectCategory,
+        projectStatus,
+      });
+      dispatch({ type: CREATE_PROJECT_SUCCESS });
+      dispatch({ type: CLEAR_VALUES });
+    } catch (error) {
+      if (error.response.status !== 401) return;
+      dispatch({
+        type: CREATE_PROJECT_ERROR,
+        payload: { msg: error.response.data.msg },
+      });
+    }
+    clearAlert();
+  };
+
   const getJobs = async () => {
     const { search, searchByCompany, searchStatus, searchType, sort, page } =
       state;
@@ -253,15 +300,51 @@ const AppProvider = ({ children }) => {
         },
       });
     } catch (error) {
-      logoutUser();
+      //logoutUser();
     }
     clearAlert();
+  };
+
+  const getProjects = async () => {
+    const { search, searchStatus, searchByProject, searchType, sort, page } =
+      state;
+
+    let url = `/projects?page=${page}&projectStatus=${searchStatus}&projectCategory=${searchType}&sort=${sort}`;
+
+    if (search) {
+      url = url + `&description=${search}`;
+    }
+    if (searchByProject) {
+      url = url + `&name=${searchByProject}`;
+    }
+
+    dispatch({ type: GET_PROJECTS_BEGIN });
+    try {
+      const { data } = await authFetch(url);
+      const { projects, totalProjects, numOfPages } = data;
+
+      dispatch({
+        type: GET_PROJECTS_SUCCESS,
+        payload: {
+          projects,
+          totalProjects,
+          numOfPages,
+        },
+      });
+    } catch (error) {
+      //logoutUser();
+    }
+    clearAlert();
+    
   };
 
   const setEditJob = (id) => {
     dispatch({ type: SET_EDIT_JOB, payload: { id } });
   };
 
+  const setEditProject = (id) => {
+    dispatch({ type: SET_EDIT_PROJECT, payload: { id } });
+  };
   const editJob = async () => {
     dispatch({ type: EDIT_JOB_BEGIN });
     try {
@@ -283,13 +366,52 @@ const AppProvider = ({ children }) => {
     clearAlert();
   };
 
+  const editProject = async () => {
+    dispatch({ type: EDIT_PROJECT_BEGIN });
+    try {
+      const {
+        editProjectId,
+        name,
+        description,
+        projectCategory,
+        projectStatus,
+      } = state;
+      await authFetch.patch(`/projects/${editProjectId}`, {
+        name,
+        description,
+        projectCategory,
+        projectStatus,
+      });
+      dispatch({ type: EDIT_PROJECT_SUCCESS });
+      dispatch({ type: CLEAR_VALUES });
+    } catch (error) {
+      if (error.response.status === 401) return;
+      dispatch({
+        type: EDIT_PROJECT_ERROR,
+        payload: { msg: error.response.msg },
+      });
+    }
+    clearAlert();
+     //dispatch({ type: CLEAR_VALUES });
+  };
+
   const deleteJob = async (jobId) => {
     dispatch({ type: DELETE_JOB_BEGIN });
     try {
       await authFetch.delete(`/jobs/${jobId}`);
       getJobs();
     } catch (error) {
-      logoutUser();
+      // logoutUser();
+    }
+  };
+
+  const deleteProject = async (projectId) => {
+    dispatch({ type: DELETE_PROJECT_BEGIN });
+    try {
+      await authFetch.delete(`/projects/${projectId}`);
+      getProjects();
+    } catch (error) {
+      // logoutUser();
     }
   };
 
@@ -305,7 +427,7 @@ const AppProvider = ({ children }) => {
         },
       });
     } catch (error) {
-       logoutUser();
+      //logoutUser();
     }
     clearAlert();
   };
@@ -338,6 +460,12 @@ const AppProvider = ({ children }) => {
         showStats,
         clearFilters,
         changePage,
+        //Projects
+        createProject,
+        getProjects,
+        setEditProject,
+        deleteProject,
+        editProject,
       }}
     >
       {children}

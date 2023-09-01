@@ -5,7 +5,10 @@ import {
   AllJobs,
   Profile,
   Stats,
-  SharedLayout
+  SharedLayout,
+  FormLayout,
+  AllProjects
+
 } from './pages/dashboard';
 function App() {
   return (
@@ -20,6 +23,8 @@ function App() {
           }
         >
           <Route index element={<Stats />} />
+          <Route path='add-project' element={<FormLayout />} />
+          <Route path='all-projects' element={<AllProjects />} />
           <Route path='add-job' element={<AddJob />} />
           <Route path='all-jobs' element={<AllJobs />} />
           <Route path='profile' element={<Profile />} />

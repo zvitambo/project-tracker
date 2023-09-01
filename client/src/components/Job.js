@@ -32,6 +32,7 @@ const { setEditJob, deleteJob } = useAppContext();
           <JobInfo icon={<FaBriefcase />} text={jobType} />
           <div className={`status ${status}`}>{status}</div>
         </div>
+        
         <footer>
           <div className='actions'>
             <Link

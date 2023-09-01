@@ -1,12 +1,13 @@
 const PROJECT_CATEGORY = {
   FAMILY_HOME_RENOVATIONS: "Family Home Renovations/Revamping",
-  FAMILY_FUNCTION: "Family Function",
+  FAMILY_FUNCTION: "Family Function/Event",
+  LEGAL_PROCESS: "Legal Process",
 };
 
 const FEATURE_CATEGORY = {
   NEW_FEATURE: "New Feature",
   REPAIRS: "Repairs",
-  TODO: "To do / task",
+  TODO: "Todo/task",
 };
 
 
