@@ -18,6 +18,11 @@ const DebitTransactionSchema = new mongoose.Schema(
       ],
       default: TRANSACTION_STATUS.IN_COMPLETE,
     },
+    description: {
+      type: String,
+      minlength:3,
+      required: [true, "Please provide a project description"],
+    },
     feature: {
       type: mongoose.Types.ObjectId,
       ref: "Feature",

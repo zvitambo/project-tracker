@@ -33,9 +33,9 @@ const AddJob = () => {
       displayAlert();
       return;
     }
-    if (isEditing){
+    if (isEditing) {
       editJob();
-      return
+      return;
     }
     createJob();
   };
@@ -80,7 +80,6 @@ const AddJob = () => {
             handleChange={handleJobInput}
             list={jobTypeOptions}
           />
-
           <div className='btn-container'>
             <button
               className='btn btn-block submit-btn'

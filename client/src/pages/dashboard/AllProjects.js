@@ -1,11 +1,11 @@
 import React from "react";
-import { ProjectFeatureContainer, SearchContainer } from "../../components";
+import { ProjectContainer, ProjectSearchContainer } from "../../components";
 
 const AllProjects = () => {
   return (
     <>
-      <SearchContainer />
-      <ProjectFeatureContainer />
+      <ProjectSearchContainer />
+      <ProjectContainer />
     </>
   );
 };

@@ -1,6 +1,11 @@
 const express = require('express');
 //const rateLimiter = require('express-rate-limiter');
-const { register, login, updateUser } = require('../controllers/authController') 
+const {
+  register,
+  login,
+  updateUser,
+  getAllUsers,
+} = require("../controllers/authController"); 
 const router = express.Router();
 const authenticateUser = require('../middleware/auth')
 
@@ -13,6 +18,7 @@ const authenticateUser = require('../middleware/auth')
 //router.route("/register").post(apiLimiter,register);
 //router.route("/login").post(apiLimiter, login);
 
+router.route("/users").get(authenticateUser, getAllUsers);
 router.route("/register").post(register);
 router.route("/login").post(login);
 

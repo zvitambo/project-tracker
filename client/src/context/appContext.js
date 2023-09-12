@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useReducer, useContext } from "react";
+import { redirect } from "react-router-dom";
 import axios from "axios";
 import reducer from "./reducer";
 import {
@@ -32,6 +33,11 @@ import {
   SHOW_STATS_SUCCESS,
   CLEAR_FILTERS,
   CHANGE_PAGE,
+
+  //USERS
+  GET_USERS_BEGIN,
+  GET_USERS_SUCCESS,
+  //PROJECTS
   CREATE_PROJECT_BEGIN,
   CREATE_PROJECT_SUCCESS,
   CREATE_PROJECT_ERROR,
@@ -42,6 +48,38 @@ import {
   EDIT_PROJECT_BEGIN,
   EDIT_PROJECT_SUCCESS,
   EDIT_PROJECT_ERROR,
+  SET_IS_PROJECT,
+  SET_GET_PROJECTS,
+  //FEATURES
+  SET_IS_FEATURE,
+  CREATE_FEATURE_BEGIN,
+  CREATE_FEATURE_SUCCESS,
+  CREATE_FEATURE_ERROR,
+  GET_FEATURES_BEGIN,
+  GET_FEATURES_SUCCESS,
+  SET_EDIT_FEATURE,
+  DELETE_FEATURE_BEGIN,
+  EDIT_FEATURE_BEGIN,
+  EDIT_FEATURE_SUCCESS,
+  EDIT_FEATURE_ERROR,
+  //CREDIT_TRANSACTIONS
+  CREATE_CREDIT_TRANSACTION_BEGIN,
+  CREATE_CREDIT_TRANSACTION_SUCCESS,
+  CREATE_CREDIT_TRANSACTION_ERROR,
+
+  //DEBIT_TRANSACTIONS
+  CREATE_DEBIT_TRANSACTION_BEGIN,
+  CREATE_DEBIT_TRANSACTION_SUCCESS,
+  CREATE_DEBIT_TRANSACTION_ERROR,
+  SET_EDIT_DEBIT_TRANSACTION,
+
+  //IMAGES
+  UPLOAD_IMAGE_ERROR,
+  CREATE_IMAGE_BEGIN,
+  CREATE_IMAGE_SUCCESS,
+  CREATE_IMAGE_ERROR,
+  GET_IMAGES_BEGIN,
+  GET_IMAGES_SUCCESS,
 } from "./actions";
 
 const user = localStorage.getItem("user");
@@ -58,6 +96,7 @@ export const initialState = {
   userLocation: userLocation || "",
   showSidebar: false,
   isEditing: false,
+  isEditingFeature: false,
   editJobId: "",
   position: "",
   company: "",
@@ -78,8 +117,13 @@ export const initialState = {
   searchType: "all",
   sort: "lastest",
   sortOptions: ["lastest", "oldest", "a-z", "z-a"],
+
+  //users
+  users: [],
+  totalUsers: 0,
   //Projects
   editProjectId: "",
+  editProjectUUID: "",
   name: "",
   description: "",
   projectCategoryOptions: [
@@ -92,7 +136,51 @@ export const initialState = {
   projectStatus: "In Progress",
   projects: [],
   totalProjects: 0,
+  isProject: true,
+  searchByProject: "",
+  projectRunningBalance: "0.00",
+  featureExpenditureBalance: "0.00",
   //Features
+  editFeatureId: "",
+  editFeatureUUID: "",
+  searchByFeature: "",
+  featureName: "",
+  featureDescription: "",
+  featureCategoryOptions: ["New Feature", "Repairs", "Todo/task"],
+  featureCategory: "New Feature",
+  featureStatusOptions: ["In Progress", "Finished", "On Hold"],
+  featureStatus: "In Progress",
+  features: [],
+  totalFeatures: 0,
+  totalExpenditure: "0.00",
+  //credit_transactions
+  creditTransactionAmount: 0,
+  transactionStatusOptions: ["Complete", "Incomplete", "Reversed"],
+  creditTransactionTypeOptions: ["Investment", "Contribution"],
+  creditTransactionStatus: "Complete",
+  creditTransactionType: "Investment",
+  creditTransactionOwnerId: "",
+  //debit_transactions
+  debitTransactionAmount: 0,
+  debitTransactionUUID: "",
+  debitTransactionStatus: "Complete",
+  debitTransactionDescription: "",
+  debitTransactionHasReceipt: false,
+  formData: new FormData(),
+  //Images
+  imageName: "",
+  imageDescription: "",
+  imageStatusOptions: [
+    "Receipt",
+    "Before the Job",
+    "During the job/work",
+    "After the Job",
+    "Personal Gallery Picture",
+  ],
+  imageStatus: "Receipt",
+  imageOwner: "",
+  imageUrl: "",
+  images:[]
 };
 
 const AppContext = React.createContext();
@@ -274,6 +362,168 @@ const AppProvider = ({ children }) => {
     clearAlert();
   };
 
+  const createFeature = async () => {
+    dispatch({ type: CREATE_FEATURE_BEGIN });
+    try {
+      const {
+        editProjectId,
+        featureName,
+        featureDescription,
+        featureCategory,
+        featureStatus,
+      } = state;
+      await authFetch.post("projects/features", {
+        featureName,
+        featureDescription,
+        featureCategory,
+        featureStatus,
+        projectId: editProjectId,
+      });
+      dispatch({ type: CREATE_FEATURE_SUCCESS });
+      //dispatch({ type: CLEAR_VALUES });
+    } catch (error) {
+      if (error.response.status !== 401) return;
+      dispatch({
+        type: CREATE_FEATURE_ERROR,
+        payload: { msg: error.response.data.msg },
+      });
+    }
+    dispatch({ type: CLEAR_VALUES });
+    clearAlert();
+  };
+
+  const createCreditTransaction = async () => {
+    dispatch({ type: CREATE_CREDIT_TRANSACTION_BEGIN });
+    try {
+      const {
+        editProjectId,
+        creditTransactionAmount,
+        creditTransactionStatus,
+        creditTransactionType,
+        creditTransactionOwnerId,
+      } = state;
+      await authFetch.post("accounts/credit/", {
+        amount: creditTransactionAmount,
+        status: creditTransactionStatus,
+        transaction_type: creditTransactionType,
+        account_holder: creditTransactionOwnerId,
+        projectId: editProjectId,
+      });
+      dispatch({ type: CREATE_CREDIT_TRANSACTION_SUCCESS });
+      dispatch({ type: CLEAR_VALUES });
+    } catch (error) {
+      if (error.response.status !== 401) return;
+      dispatch({
+        type: CREATE_CREDIT_TRANSACTION_ERROR,
+        payload: { msg: error.response.data.msg },
+      });
+    }
+    clearAlert();
+  };
+
+  const createDebitTransaction = async () => {
+    dispatch({ type: CREATE_DEBIT_TRANSACTION_BEGIN });
+    try {
+      const {
+        editFeatureId,
+        debitTransactionAmount,
+        debitTransactionStatus,
+        debitTransactionDescription,
+        debitTransactionHasReceipt,
+      } = state;
+     const {
+        data: {
+          transaction: { uuid },
+        },
+      } =  await authFetch.post("accounts/debit/", {
+        amount: debitTransactionAmount,
+        status: debitTransactionStatus,
+        description: debitTransactionDescription,
+        featureId: editFeatureId,
+      });
+
+      
+
+      // dispatch({
+      //     type: SET_EDIT_DEBIT_TRANSACTION,
+      //     payload: {  uuid },
+      //   });
+    
+      //     dispatch({ type: CREATE_DEBIT_TRANSACTION_SUCCESS });
+         // dispatch({ type: CLEAR_VALUES });
+
+      if (debitTransactionHasReceipt){
+         createImage(uuid)
+        dispatch({
+          type: SET_EDIT_DEBIT_TRANSACTION,
+          payload: { uuid },
+        });
+         dispatch({ type: CREATE_DEBIT_TRANSACTION_SUCCESS });
+      }else{
+          dispatch({ type: CREATE_DEBIT_TRANSACTION_SUCCESS });
+          dispatch({ type: CLEAR_VALUES });
+      }
+      
+    } catch (error) {
+      if (error.response.status !== 401) return;
+      dispatch({
+        type: CREATE_DEBIT_TRANSACTION_ERROR,
+        payload: { msg: error.response.data.msg },
+      });
+    }
+    clearAlert();
+  };
+
+  const uploadImage = async () => {
+    try {
+      const { formData } = state;
+      const {
+        data: {
+          image: { name, src },
+        },
+      } = await authFetch.post(`images/save`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return {name, src};
+    } catch (error) {
+      if (error.response.status !== 401) return;
+      dispatch({
+        type: UPLOAD_IMAGE_ERROR,
+        payload: { msg: error.response.data.msg },
+      });
+    }
+  };
+
+  const createImage = async (uuid) => {
+    dispatch({ type: CREATE_IMAGE_BEGIN });
+    try {
+      const {  imageDescription, imageStatus, imageOwner} =
+        state;
+      const { name, src } = await uploadImage();
+      await authFetch.post("images/", {
+        name,
+        description: imageDescription,
+        status: imageStatus,
+        uuid,
+        url: src,
+      });
+
+      
+      dispatch({ type: CREATE_IMAGE_SUCCESS });
+      dispatch({ type: CLEAR_VALUES });
+      getImages()
+    } catch (error) {
+      if (error.response.status !== 401) return;
+      dispatch({
+        type: CREATE_IMAGE_ERROR,
+        payload: { msg: error.response.data.msg },
+      });
+    }
+    clearAlert();
+  };
+
   const getJobs = async () => {
     const { search, searchByCompany, searchStatus, searchType, sort, page } =
       state;
@@ -335,8 +585,107 @@ const AppProvider = ({ children }) => {
       //logoutUser();
     }
     clearAlert();
-    
   };
+
+  const setGetProjects = () => {
+    dispatch({ type: SET_GET_PROJECTS });
+  };
+
+  const getFeatures = async () => {
+    const {
+      search,
+      searchStatus,
+      searchByFeature,
+      searchType,
+      sort,
+      page,
+      editProjectId,
+    } = state;
+
+    let url = `/projects/features?page=${page}&featureStatus=${searchStatus}&featureCategory=${searchType}&sort=${sort}`;
+
+    if (search) {
+      url = url + `&featureDescription=${search}`;
+    }
+    if (searchByFeature) {
+      url = url + `&featureName=${searchByFeature}`;
+    }
+
+    if (editProjectId) {
+      url = url + `&projectId=${editProjectId}`;
+    }
+
+    dispatch({ type: GET_FEATURES_BEGIN });
+    try {
+      const { data } = await authFetch(url);
+      const { features, totalFeatures, numOfPages } = data;
+
+      dispatch({
+        type: GET_FEATURES_SUCCESS,
+        payload: {
+          features,
+          totalFeatures,
+          numOfPages,
+        },
+      });
+    } catch (error) {
+      //logoutUser();
+    }
+    clearAlert();
+  };
+
+  const getUsers = async () => {
+    let url = `/auth/users/`;
+
+    dispatch({ type: GET_USERS_BEGIN });
+    try {
+      const { data } = await authFetch(url);
+      const { users, totalUsers, numOfPages } = data;
+
+      dispatch({
+        type: GET_USERS_SUCCESS,
+        payload: {
+          users,
+          totalUsers,
+          numOfPages,
+        },
+      });
+    } catch (error) {
+      //logoutUser();
+    }
+    clearAlert();
+  };
+   const getImages = async () => {
+     const { editFeatureId, editProjectId } =
+       state;
+     let url = `/images?page=all`;
+
+     if (editFeatureId) {
+       url = url + `&featureId=${editFeatureId}&debit=true`;
+     }
+     if (editProjectId) {
+       url = url + `&projectId=${editProjectId}`;
+     }
+
+     dispatch({ type: GET_IMAGES_BEGIN });
+     try {
+       const { data } = await authFetch(url);
+       const { images } = data;
+
+       console.log(images)
+
+       dispatch({
+         type: GET_IMAGES_SUCCESS,
+         payload: {
+           images
+         },
+       });
+     } catch (error) {
+       //logoutUser();
+     }
+     clearAlert();
+   };
+
 
   const setEditJob = (id) => {
     dispatch({ type: SET_EDIT_JOB, payload: { id } });
@@ -344,6 +693,18 @@ const AppProvider = ({ children }) => {
 
   const setEditProject = (id) => {
     dispatch({ type: SET_EDIT_PROJECT, payload: { id } });
+  };
+
+  const setEditFeature = (id) => {
+    dispatch({ type: CLEAR_VALUES });
+    dispatch({ type: SET_EDIT_FEATURE, payload: { id } });
+  };
+  const setIsProject = () => {
+    dispatch(dispatch({ type: SET_IS_PROJECT }));
+  };
+
+  const setIsFeature = (projectId) => {
+    dispatch({ type: SET_IS_FEATURE, payload: { projectId } });
   };
   const editJob = async () => {
     dispatch({ type: EDIT_JOB_BEGIN });
@@ -383,6 +744,7 @@ const AppProvider = ({ children }) => {
         projectStatus,
       });
       dispatch({ type: EDIT_PROJECT_SUCCESS });
+      redirect("/all-projects");
       dispatch({ type: CLEAR_VALUES });
     } catch (error) {
       if (error.response.status === 401) return;
@@ -392,7 +754,38 @@ const AppProvider = ({ children }) => {
       });
     }
     clearAlert();
-     //dispatch({ type: CLEAR_VALUES });
+
+    //dispatch({ type: CLEAR_VALUES });
+  };
+
+  const editFeature = async () => {
+    dispatch({ type: EDIT_FEATURE_BEGIN });
+    try {
+      const {
+        editFeatureId,
+        featureName,
+        featureDescription,
+        featureCategory,
+        featureStatus,
+      } = state;
+      await authFetch.patch(`/projects/features/${editFeatureId}`, {
+        featureName,
+        featureDescription,
+        featureCategory,
+        featureStatus,
+      });
+      dispatch({ type: EDIT_FEATURE_SUCCESS });
+      dispatch({ type: CLEAR_VALUES });
+    } catch (error) {
+      if (error.response.status === 401) return;
+      dispatch({
+        type: EDIT_FEATURE_ERROR,
+        payload: { msg: error.response.msg },
+      });
+    }
+    clearAlert();
+
+    //dispatch({ type: CLEAR_VALUES });
   };
 
   const deleteJob = async (jobId) => {
@@ -410,6 +803,16 @@ const AppProvider = ({ children }) => {
     try {
       await authFetch.delete(`/projects/${projectId}`);
       getProjects();
+    } catch (error) {
+      // logoutUser();
+    }
+  };
+
+  const deleteFeature = async (featureId) => {
+    dispatch({ type: DELETE_FEATURE_BEGIN });
+    try {
+      await authFetch.delete(`/projects/features/${featureId}`);
+      getFeatures();
     } catch (error) {
       // logoutUser();
     }
@@ -440,6 +843,8 @@ const AppProvider = ({ children }) => {
     dispatch({ type: CHANGE_PAGE, payload: { page } });
   };
 
+
+
   return (
     <AppContext.Provider
       value={{
@@ -460,12 +865,30 @@ const AppProvider = ({ children }) => {
         showStats,
         clearFilters,
         changePage,
+        //Users
+        getUsers,
         //Projects
         createProject,
         getProjects,
         setEditProject,
         deleteProject,
         editProject,
+        setIsProject,
+        setGetProjects,
+        //Feature
+        setIsFeature,
+        createFeature,
+        getFeatures,
+        setEditFeature,
+        deleteFeature,
+        editFeature,
+        //Credit Transactions
+        createCreditTransaction,
+
+        //Debit Transactions
+        createDebitTransaction,
+        createImage,
+        getImages,
       }}
     >
       {children}

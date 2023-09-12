@@ -24,10 +24,11 @@ const FEATURE_STATUS = {
 };
 
 const IMAGE_STATUS = {
+  RECEIPT: "Receipt",
   PRE_JOB: "Before the Job",
   JOB_IN_PROGRESS: "During the job/work",
   POST_JOB: "After the Job",
-  GALLERY: "Personal Gallery Picture"
+  GALLERY: "Personal Gallery Picture",
 };
 
 

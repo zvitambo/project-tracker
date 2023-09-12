@@ -39,6 +39,12 @@ const Wrapper = styled.section`
       height: 35px;
     }
   }
+  .edit-form-header {
+    width: 50%;
+    float: left;
+    padding: 20px;
+    border: 2px solid red;
+  }
   .clear-btn {
     background: var(--grey-500);
   }
@@ -63,6 +69,6 @@ const Wrapper = styled.section`
       margin-top: 0;
     }
   }
-`
+`;
 
 export default Wrapper

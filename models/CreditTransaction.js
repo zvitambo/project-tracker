@@ -5,7 +5,7 @@ const {
 } = require("../utils/enum");
 const crypto = require("crypto");
 
-const CreditTransactionSchema = new mongoose.Schema(
+const CreditTransactionSchema = new mongoose.Schema( 
   {
     amount: {
       type: Number,

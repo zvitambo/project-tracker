@@ -71,8 +71,15 @@ const updateUser = async (req, res) => {
 
 }
 
+const getAllUsers = async(req, res) => {
+  const users = await User.find({});
+  if (!users) throw new NotFoundError('Users not found');
+  res.status(StatusCodes.OK).json({users});
+
+};
 
 
 
 
-module.exports = { register, login, updateUser };
+
+module.exports = { register, login, updateUser, getAllUsers };

@@ -5,7 +5,7 @@
 }
 
 /* fonts */
-@import url('https://fonts.googleapis.com/css2?family=Cabin&family=Roboto+Condensed:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Cabin&family=Roboto+Condensed:wght@400;700&display=swap");
 
 html {
   font-size: 100%;
@@ -42,10 +42,13 @@ html {
   --red-dark: #842029;
   --green-light: #d1e7dd;
   --green-dark: #0f5132;
+  --light-green-dark: #177e4ed3;
+
+  --orange-dark: #f8b90c;
 
   /* fonts  */
-  --headingFont: 'Roboto Condensed', Sans-Serif;
-  --bodyFont: 'Cabin', Sans-Serif;
+  --headingFont: "Roboto Condensed", Sans-Serif;
+  --bodyFont: "Cabin", Sans-Serif;
   --small-text: 0.875rem;
   --extra-small-text: 0.7em;
   /* rest of the vars */
@@ -320,30 +323,102 @@ ul {
   }
 }
 
-
 .hr-center {
-  color : var(--primary-400);
+  color: var(--primary-400);
   margin-top: 2rem;
   margin-bottom: 2rem;
 }
 
-.form-text-header{
-  color : var(--primary-600);
+.form-text-header {
+  color: var(--primary-600);
+  display: inline-block;
 }
 
+.form-text-header button {
+  margin-top: 2rem;
+}
+
+.money-balance {
+  float: right;
+  color: var(--light-green-dark);
+}
 
 .btn-full-width {
-   width: 100%;
-   display: block;
- 
+  width: 100%;
+  display: block;
 }
 
 .btn-separate-container {
-   margin-top: 2rem;
+  margin-top: 2rem;
 }
 
-.sp-card-date{
+.sp-card-date {
   display: absolute;
- float: right;
+  float: right;
+}
+
+.btn.add-feature {
+  float: right;
+  background: var(--orange-dark);
+  width: 32.5%;
+}
+
+.switch-checkbox {
+  height: 0;
+  width: 0;
+  visibility: hidden;
+}
+
+.switch-label {
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  width: 100px;
+  height: 42px;
+  background: grey;
+  border-radius: 100px;
+  position: relative;
+  transition: background-color 0.2s;
+}
+
+.switch-label .switch-button {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 45px;
+  height: 37px;
+  border-radius: 45px;
+  transition: 0.2s;
+  background: #fff;
+  box-shadow: 0 0 2px 0 rgba(10, 10, 10, 0.29);
+}
+
+.switch-checkbox:checked + .switch-label .switch-button {
+  left: calc(100% - 2px);
+  transform: translateX(-100%);
+}
+
+.switch-label:active .switch-button {
+  width: 60px;
+}
+
+.form-center-image {
+  text-align: center;
+}
+
+@media (min-width: 292px) {
+  .form-center-image-child {
+    margin-left: 5rem;
+  }
+}
+
+@media (min-width: 1092px) {
+  .form-center-image-child {
+    margin-left: 20rem;
+  }
+
 }
 

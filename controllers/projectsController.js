@@ -14,7 +14,8 @@ const moment = require("moment");
 
 
 const getAllProjects = async (req, res) => {
-  const { projectStatus, search, searchByProject, projectCategory, sort } = req.query;
+  const { projectStatus, name, description, projectCategory, sort } = req.query;
+  console.log(req.query);
   const queryObject = {
     createdBy: req.user.userId,
   };
@@ -27,12 +28,12 @@ const getAllProjects = async (req, res) => {
     queryObject.projectCategory = projectCategory;
   }
 
-  if (search) {
-    queryObject.description = { $regex: search, $options: "i" };
+  if (description) {
+    queryObject.description = { $regex: description, $options: "i" };
   }
 
-  if (searchByProject) {
-    queryObject.name = { $regex: searchByProject, $options: "i" };
+  if (name) {
+    queryObject.name = { $regex: name, $options: "i" };
   }
 
   let result = Project.find(queryObject);
@@ -154,32 +155,42 @@ console.log(stats);
 const getAllProjectFeatures = async (req, res) => {
   const {
     featureStatus,
-    search,
-    searchByFeature,
+    featureName,
+    featureDescription,
     featureCategory,
     sort,
-    project_id,
+    projectId,
   } = req.query;
     
   const queryObject = {
-    createdBy: req.user.userId,
-    project: project_id,
+    createdBy: req.user.userId
   };
 
-  if (featureStatus && featureStatus !== "all") {
-    queryObject.featureStatus = featureStatus;
+  
+  if (projectId && projectId !== "all") {
+    queryObject.project = projectId;
   }
+
+
+
+   if (featureStatus && featureStatus !== "all") {
+     queryObject.featureStatus = featureStatus;
+   }
 
   if (featureCategory && featureCategory !== "all") {
     queryObject.featureCategory = featureCategory;
   }
 
-  if (search) {
-    queryObject.description = { $regex: search, $options: "i" };
+  if (featureName) {
+    queryObject.featureName = { $regex: featureName, $options: "i" };
   }
+  
 
-  if (searchByFeature) {
-    queryObject.name = { $regex: searchByFeature, $options: "i" };
+  if (featureDescription) {
+    queryObject.featureDescription = {
+      $regex: featureDescription,
+      $options: "i",
+    };
   }
 
   let result = Feature.find(queryObject);
@@ -209,21 +220,33 @@ const getAllProjectFeatures = async (req, res) => {
 };
 
 const createProjectFeature = async (req, res) => {
-  const { project_id } = req.params;
-if (!project_id) throw new BadRequestError("Please provide a valid Project ID");
- const { name, description, category, status } = req.body;
- if (!name || !description)
+ 
+ const {
+   featureName,
+   featureDescription,
+   featureCategory,
+   featureStatus,
+   projectId,
+ } = req.body;
+ if (
+   !featureName ||
+   !featureDescription ||
+   !featureCategory ||
+   !featureStatus ||
+   !projectId
+ )
    throw new BadRequestError("Please provide all values");
   req.body.createdBy = req.user.userId;
-  req.body.project = project_id;
+  req.body.project = projectId;
   const feature = await Feature.create(req.body);
   res.status(StatusCodes.OK).json({ feature });
 };
 
 const updateProjectFeature = async (req, res) => {
   const { id: featureId } = req.params;
-  const { name, description, category, status } = req.body;
- if (!name || !description)
+  const { featureName, featureDescription, featureCategory, featureStatus } =
+    req.body;
+ if (!featureName || !featureDescription || !featureCategory || !featureStatus)
    throw new BadRequestError("Please provide all values");
   const feature = await Feature.findOne({ _id: featureId });
 

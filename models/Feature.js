@@ -10,15 +10,15 @@ const {
 
 const FeatureSchema = new mongoose.Schema(
   {
-    name: {
+    featureName: {
       type: String,
       required: [true, "Please provide feature name"],
-      minlength: 8,
+      minlength: 3,
       trim: true,
     },
-    description: {
+    featureDescription: {
       type: String,
-      minlength: 12,
+      minlength: 3,
       required: [true, "Please provide a feature description"],
     },
     featureCategory: {

@@ -22,7 +22,7 @@ router
 router
   .route("/credit")
   .get(getAllCreditTransactions)
-router.route("/credit/:project_id").post(createCreditTransaction);
+router.route("/credit/").post(createCreditTransaction);
 router
   .route("/credit/:id")
   .delete(deleteCreditTransaction)
@@ -30,7 +30,7 @@ router
 
 //debit
 router.route("/debit").get(getAllDebitTransactions);
-router.route("/debit/:feature_id").post(createDebitTransaction);
+router.route("/debit/").post(createDebitTransaction);
 router
   .route("/debit/:id")
   .delete(deleteDebitTransaction)

@@ -28,16 +28,44 @@ import {
   SHOW_STATS_SUCCESS,
   CLEAR_FILTERS,
   CHANGE_PAGE,
+  GET_USERS_BEGIN,
+  GET_USERS_SUCCESS,
   CREATE_PROJECT_BEGIN,
   CREATE_PROJECT_SUCCESS,
   CREATE_PROJECT_ERROR,
   GET_PROJECTS_BEGIN,
   GET_PROJECTS_SUCCESS,
+  SET_GET_PROJECTS,
   SET_EDIT_PROJECT,
   DELETE_PROJECT_BEGIN,
   EDIT_PROJECT_BEGIN,
   EDIT_PROJECT_SUCCESS,
   EDIT_PROJECT_ERROR,
+  SET_IS_PROJECT,
+  SET_IS_FEATURE,
+  CREATE_FEATURE_BEGIN,
+  CREATE_FEATURE_SUCCESS,
+  CREATE_FEATURE_ERROR,
+  GET_FEATURES_BEGIN,
+  GET_FEATURES_SUCCESS,
+  SET_EDIT_FEATURE,
+  DELETE_FEATURE_BEGIN,
+  EDIT_FEATURE_BEGIN,
+  EDIT_FEATURE_SUCCESS,
+  EDIT_FEATURE_ERROR,
+  CREATE_CREDIT_TRANSACTION_BEGIN,
+  CREATE_CREDIT_TRANSACTION_SUCCESS,
+  CREATE_CREDIT_TRANSACTION_ERROR,
+  CREATE_DEBIT_TRANSACTION_BEGIN,
+  CREATE_DEBIT_TRANSACTION_SUCCESS,
+  CREATE_DEBIT_TRANSACTION_ERROR,
+  SET_EDIT_DEBIT_TRANSACTION,
+  UPLOAD_IMAGE_ERROR,
+  CREATE_IMAGE_BEGIN,
+  CREATE_IMAGE_SUCCESS,
+  CREATE_IMAGE_ERROR,
+  GET_IMAGES_BEGIN,
+  GET_IMAGES_SUCCESS,
 } from "./actions";
 
 import { initialState } from "./appContext";
@@ -155,17 +183,45 @@ const reducer = (state, action) => {
     case CLEAR_VALUES:
       const newInitialState = {
         isEditing: false,
+        isEditingFeature: false,
         editJobId: "",
         position: "",
         company: "",
         jobType: "full-time",
         status: "pending",
         jobLocation: state.userLocation,
+        editProjectId: "",
         name: "",
         description: "",
-        projectCategory: "",
-        projectStatus: ""
+        projectCategory: "Family Home Renovations/Revamping",
+        projectStatus: "In Progress",
+        isProject: true,
+        featureProjectId: "",
+        featureName: "",
+        featureDescription: "",
+        featureCategory: "New Feature",
+        featureStatus: "In Progress",
+        creditTransactionAmount: 0,
+        creditTransactionStatus: "Complete",
+        creditTransactionType: "Investment",
+        creditTransactionOwnerId: "",
+        //debit_transactions
+        debitTransactionAmount: 0,
+        debitTransactionStatus: "Complete",
+        debitTransactionDescription: "",
+        projectRunningBalance: "0.00",
+        featureExpenditureBalance: "0.00",
+        debitTransactionHasReceipt: false,
+        debitTransactionUUID: "",
 
+        //Images
+        formData: new FormData(),
+        imageName: "",
+        imageDescription: "",
+        imageStatus: "Receipt",
+        imageOwner: "",
+        imageUrl: "",
+        images: [],
       };
       return {
         ...state,
@@ -263,6 +319,9 @@ const reducer = (state, action) => {
         ...state,
         search: "",
         searchByCompany: "",
+        editProjectId: "",
+        searchByProject: "",
+        searchByFeature: "",
         searchStatus: "all",
         searchType: "all",
         sort: "lastest",
@@ -272,11 +331,28 @@ const reducer = (state, action) => {
         ...state,
         page: action.payload.page,
       };
+    //Users
+
+    case GET_USERS_BEGIN:
+      return {
+        ...state,
+        isLoading: true,
+        showAlert: false,
+      };
+    case GET_USERS_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        users: action.payload.users,
+        totalUsers: action.payload.totalUsers,
+        numOfPages: action.payload.numOfPages,
+      };
     //Projects
     case CREATE_PROJECT_BEGIN:
       return {
         ...state,
         isLoading: true,
+        isProject: true,
       };
     case CREATE_PROJECT_SUCCESS:
       return {
@@ -300,6 +376,13 @@ const reducer = (state, action) => {
         isLoading: true,
         showAlert: false,
       };
+    case SET_GET_PROJECTS:
+      return {
+        ...state,
+        // isProject: true,
+        // isEditing: false,
+        // editProjectId: "",
+      };
     case GET_PROJECTS_SUCCESS:
       return {
         ...state,
@@ -312,12 +395,20 @@ const reducer = (state, action) => {
       const project = state.projects.find(
         (project) => project._id === action.payload.id
       );
-      const { _id: projectId, name, description, projectCategory, projectStatus } =
-        project;
+      const {
+        _id: projectId,
+        uuid: projectUUID,
+        name,
+        description,
+        projectCategory,
+        projectStatus,
+      } = project;
       return {
         ...state,
         isEditing: true,
+        isProject: true,
         editProjectId: projectId,
+        editFeatureUUID: projectUUID,
         name,
         description,
         projectCategory,
@@ -349,6 +440,202 @@ const reducer = (state, action) => {
         alertType: "danger",
         alertText: action.payload.msg,
       };
+    case SET_IS_PROJECT:
+      return {
+        ...state,
+        isProject: true,
+      };
+
+    //Features
+    case CREATE_FEATURE_BEGIN:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case CREATE_FEATURE_SUCCESS:
+      return {
+        ...state,
+        showAlert: true,
+        alertType: "success",
+        alertText: "New Feature/Task Created!",
+        isLoading: false,
+        // isProject: true,
+        // isEditing: false,
+        // editProjectId: "",
+      };
+    case CREATE_FEATURE_ERROR:
+      return {
+        ...state,
+        isLoading: false,
+        showAlert: true,
+        alertType: "danger",
+        alertText: action.payload.msg,
+      };
+    case SET_IS_FEATURE:
+      return {
+        ...state,
+        isProject: false,
+        editProjectId: action.payload.projectId,
+        isEditingFeature: false,
+      };
+
+    case GET_FEATURES_BEGIN:
+      return {
+        ...state,
+        isLoading: true,
+        showAlert: false,
+      };
+    case GET_FEATURES_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        features: action.payload.features,
+        totalFeatures: action.payload.totalFeatures,
+        numOfPages: action.payload.numOfPages,
+      };
+    case SET_EDIT_FEATURE:
+      const feature = state.features.find(
+        (feature) => feature._id === action.payload.id
+      );
+      const {
+        _id: featureId,
+        uuid: featureUUID,
+        featureName,
+        featureDescription,
+        featureCategory,
+        featureStatus,
+      } = feature;
+      return {
+        ...state,
+        isEditingFeature: true,
+        isProject: false,
+        editFeatureId: featureId,
+        editFeatureUUID: featureUUID,
+        featureName,
+        featureDescription,
+        featureCategory,
+        featureStatus,
+      };
+    case DELETE_FEATURE_BEGIN:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case EDIT_FEATURE_BEGIN:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case EDIT_FEATURE_SUCCESS:
+      return {
+        ...state,
+        showAlert: true,
+        alertType: "success",
+        alertText: "Feature Updated Successfully!",
+        isLoading: false,
+      };
+    case EDIT_FEATURE_ERROR:
+      return {
+        ...state,
+        isLoading: false,
+        showAlert: true,
+        alertType: "danger",
+        alertText: action.payload.msg,
+      };
+    //Credit transactions
+    case CREATE_CREDIT_TRANSACTION_BEGIN:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case CREATE_CREDIT_TRANSACTION_SUCCESS:
+      return {
+        ...state,
+        showAlert: true,
+        alertType: "success",
+        alertText: "Transaction successfully created!",
+        isLoading: false,
+      };
+    case CREATE_CREDIT_TRANSACTION_ERROR:
+      return {
+        ...state,
+        isLoading: false,
+        showAlert: true,
+        alertType: "danger",
+        alertText: action.payload.msg,
+      };
+    //Debit transactions
+    case CREATE_DEBIT_TRANSACTION_BEGIN:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case CREATE_DEBIT_TRANSACTION_SUCCESS:
+      return {
+        ...state,
+        showAlert: true,
+        alertType: "success",
+        alertText: "Transaction successfully created!",
+        isLoading: false,
+      };
+    case CREATE_DEBIT_TRANSACTION_ERROR:
+      return {
+        ...state,
+        isLoading: false,
+        showAlert: true,
+        alertType: "danger",
+        alertText: action.payload.msg,
+      };
+    case SET_EDIT_DEBIT_TRANSACTION:
+      return {
+        ...state,
+        imageOwner: action.payload.uuid,
+      };
+    //images
+    case UPLOAD_IMAGE_ERROR:
+      return {
+        ...state,
+        isLoading: false,
+        showAlert: true,
+        alertType: "danger",
+        alertText: action.payload.msg,
+      };
+    case CREATE_IMAGE_BEGIN:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case CREATE_IMAGE_SUCCESS:
+      return {
+        ...state,
+        showAlert: true,
+        alertType: "success",
+        alertText: "Image uploaded successfully!",
+        isLoading: false,
+      };
+    case CREATE_IMAGE_ERROR:
+      return {
+        ...state,
+        isLoading: false,
+        showAlert: true,
+        alertType: "danger",
+        alertText: action.payload.msg,
+      };
+
+    case GET_IMAGES_BEGIN:
+      return {
+        ...state,
+        isLoading: true,
+        showAlert: false,
+      };
+    case GET_IMAGES_SUCCESS:
+      
+      return {
+        ...state,
+        isLoading: false,
+        images: action.payload.images,
+      };
+
     default:
       return state;
   }

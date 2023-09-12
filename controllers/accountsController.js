@@ -127,12 +127,13 @@ const getAllCreditTransactions = async (req, res) => {
 };
 
 const createCreditTransaction = async (req, res) => {
-  const { project_id } = req.params;
-  const { amount, transaction_type, account_holder } = req.body;
-  if (!amount || !transaction_type || !account_holder)
+ 
+  const { amount, status, transaction_type, account_holder, projectId } =
+    req.body;
+  if (!amount || !status || !transaction_type || !account_holder || !projectId)
     throw new BadRequestError("Please provide all values");
   req.body.createdBy = req.user.userId;
-  req.body.project = project_id;
+  req.body.project = projectId;
   const transaction = await CreditTransaction.create(req.body);
   if (transaction) {
     transaction.status = TRANSACTION_STATUS.COMPLETE;
@@ -272,11 +273,11 @@ const getAllDebitTransactions = async (req, res) => {
 };
 
 const createDebitTransaction = async (req, res) => {
-  const { feature_id } = req.params;
-  const { amount } = req.body;
-  if (!amount) throw new BadRequestError("Please provide amounts");
+  const { amount, description,status,  featureId } = req.body;
+  if (!amount || !description || !status || !featureId)
+    throw new BadRequestError("Please provide all values");
   req.body.createdBy = req.user.userId;
-  req.body.feature = feature_id;
+  req.body.feature = featureId;
   const transaction = await DebitTransaction.create(req.body);
   if (transaction) {
     transaction.status = TRANSACTION_STATUS.COMPLETE;

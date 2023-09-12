@@ -14,12 +14,12 @@ const ProjectSchema = new mongoose.Schema(
     name: {
       type: String,
       required: [true, "Please provide project name"],
-      minlength: 8,
+      minlength: 3,
       trim: true,
     },
     description: {
       type: String,
-      minlength: 12,
+      minlength: 3,
       required: [true, "Please provide a project description"],
     },
     projectCategory: {

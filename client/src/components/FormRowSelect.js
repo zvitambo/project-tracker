@@ -13,6 +13,13 @@ const FormRowSelect = ({name,value,  labelText,handleChange, list}) => {
         onChange={handleChange}
       >
         {list.map((itemValue, index) => {
+          if (typeof itemValue === 'object'){
+            return (
+              <option key={itemValue._id} value={itemValue._id}>
+                {itemValue.name}
+              </option>
+            );
+          }
           return (
             <option key={index} value={itemValue}>
               {itemValue}

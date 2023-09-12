@@ -11,12 +11,12 @@ const ImageSchema = new mongoose.Schema(
     name: {
       type: String,
       required: [true, "Please provide image name"],
-      minlength: 8,
+      minlength: 3,
       trim: true,
     },
     description: {
       type: String,
-      minlength: 12,
+      minlength: 3,
       required: [true, "Please provide a image description"],
     },
     url: {
@@ -33,6 +33,7 @@ const ImageSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: [
+        IMAGE_STATUS.RECEIPT,
         IMAGE_STATUS.GALLERY,
         IMAGE_STATUS.JOB_IN_PROGRESS,
         IMAGE_STATUS.PRE_JOB,
@@ -44,7 +45,7 @@ const ImageSchema = new mongoose.Schema(
       type: mongoose.Types.ObjectId,
       ref: "User",
       required: [true, "Please provide user"],
-    }
+    },
   },
   { timestamps: true }
 );

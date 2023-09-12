@@ -8,35 +8,39 @@ const {
   NotFoundError,
 } = require("../errors");
 const checkPermissions = require("../utils/checkPermissions");
+const Feature = require("../models/Feature");
+const CreditTransaction = require("../models/CreditTransaction");
+const DebitTransaction = require("../models/DebitTransaction");
 
 const saveImage = async (req, res) => {
   if (!req.files) {
     throw new BadRequestError("No File Uploaded");
   }
+
   const itemImage = req.files.image;
   if (!itemImage.mimetype.startsWith("image")) {
     throw new BadRequestError("Please Upload Image");
   }
 
   const maxSize = 1024 * 1024;
-  if (itemImage.size > maxSize) {
-    throw new CustomError.BadRequestError("Please upload image smaller 1MB");
-  }
+  // if (itemImage.size > maxSize) {
+  //   throw new BadRequestError("Please upload image smaller 1MB");
+  // }
   const imagePath = path.join(
     __dirname,
     "../public/uploads/" + `${itemImage.name}`
   );
+
   await itemImage.mv(imagePath);
   const itemImageUrl = `/uploads/${itemImage.name}`;
 
-  return res.status(StatusCodes.OK).json({ src: itemImageUrl });
+  return res
+    .status(StatusCodes.OK)
+    .json({ image: { name: itemImage.name, src: itemImageUrl } });
 };
 
-
-
 const createImage = async (req, res) => {
- 
-  const { name, description, status, uuid , url} = req.body;
+  const { name, description, status, uuid, url } = req.body;
   if (!name || !description || !status || !uuid || !url)
     throw new BadRequestError("Please provide all values");
   req.body.createdBy = req.user.userId;
@@ -45,13 +49,33 @@ const createImage = async (req, res) => {
   return res.status(StatusCodes.OK).json({ image });
 };
 
-
 const getImageUrls = async (req, res) => {
-  const { uuid } = req.query;
-  if (!uuid) throw new BadRequestError("Please Provide Image Owner uuid");
-  const images = await Image.find({ image_owner: uuid });
+  const { uuid, featureId, projectId, debit, credit } = req.query;
 
-  if (!images) throw new NotFoundError(`No images found for this item`);
+  const images = [];
+
+  if (featureId) {
+    const feature = await Feature.findOne({ _id: featureId });
+    if (feature && debit) {
+      const debitTransactions = await DebitTransaction.find({
+        feature: feature,
+      });
+
+      if (!debitTransactions) throw new NotFoundError(`No images found`);
+
+      for (let transaction of debitTransactions) {
+        const image = await Image.findOne({
+          image_owner: transaction.uuid,
+        });
+        image &&
+          images.push({
+            url: image?.url,
+            name: image?.name,
+            description: image?.description,
+          });
+      }
+    }
+  }
 
   res.status(StatusCodes.OK).json({ images });
 };
@@ -78,8 +102,4 @@ const deleteImage = async (req, res) => {
   res.status(StatusCodes.OK).json({ msg: "Success! Image removed" });
 };
 
-module.exports = { saveImage,createImage,  getImageUrls, deleteImage };
-
-
-
-
+module.exports = { saveImage, createImage, getImageUrls, deleteImage };

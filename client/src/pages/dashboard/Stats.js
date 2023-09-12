@@ -5,9 +5,12 @@ import { StatsContainer, ChartsContainer, Loading } from "../../components";
 
 const Stats = () => {
 
-  const {showStats, isLoading, monthlyApplications} = useAppContext();
+  const { showStats, isLoading, monthlyApplications, getProjects, getUsers } =
+    useAppContext();
   useEffect(()=>{
     showStats()
+    getProjects();
+    getUsers();
   }, [])
 
   if (isLoading) return <Loading center/>

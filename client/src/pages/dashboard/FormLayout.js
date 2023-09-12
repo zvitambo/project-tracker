@@ -1,21 +1,24 @@
 import React from "react";
-import { 
-  ProjectFeatureContainer, 
-  AddProject, 
-  AddFeature } from "../../components";
-  import { useAppContext } from "../../context/appContext";
+import {
+FeatureContainer,
+  AddProject,
+  // AddFeature
+} from "../../components";
+ import { useAppContext } from "../../context/appContext";
 
-const FormLayout = ({isProject = true}) => {
+const FormLayout = () => {
     
 
    const {
-     isEditing,    
+     isEditing,
+     isProject
    } = useAppContext();
-   console.log("isEditing", isEditing);
+  
   return (
     <>
-      {isProject ? <AddProject/> : <AddFeature/>}
-      {!isEditing && <ProjectFeatureContainer isProject={isProject} />}
+
+      <AddProject />
+      {(!isProject || isEditing) && <FeatureContainer />}
     </>
   );
 };

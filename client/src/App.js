@@ -1,6 +1,9 @@
 import { BrowserRouter, Routes, Route} from "react-router-dom";
 import { Landing,  Error, Register, ProtectedRoute } from "./pages";
-import {
+import {AllFeatures, AddFeature} from '../src/components';
+
+
+import { 
   AddJob,
   AllJobs,
   Profile,
@@ -11,6 +14,7 @@ import {
 
 } from './pages/dashboard';
 function App() {
+ 
   return (
     <BrowserRouter>
       <Routes>
@@ -25,6 +29,11 @@ function App() {
           <Route index element={<Stats />} />
           <Route path='add-project' element={<FormLayout />} />
           <Route path='all-projects' element={<AllProjects />} />
+          <Route
+            path='add-feature'
+            element={<AddFeature  />}
+          />
+          <Route path='all-features' element={<AllFeatures />} />
           <Route path='add-job' element={<AddJob />} />
           <Route path='all-jobs' element={<AllJobs />} />
           <Route path='profile' element={<Profile />} />

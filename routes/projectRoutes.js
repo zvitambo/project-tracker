@@ -21,8 +21,7 @@ router.route("/stats").get(showProjectStats);
 //features
 router
   .route("/features")
-  .get(getAllProjectFeatures);
-router.route("/features/:project_id").post(createProjectFeature);
+  .get(getAllProjectFeatures).post(createProjectFeature);
 router.route("/features/stats").get(showProjectFeatureStats);
 router
   .route("/features/:id")
