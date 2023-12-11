@@ -1,14 +1,21 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, {useEffect} from 'react'
 import { useAppContext } from "../../context/appContext";
-import { StatsContainer, ChartsContainer, Loading } from "../../components";
+import { ProjectStatsContainer, ChartsContainer, Loading } from "../../components";
 
 const Stats = () => {
 
-  const { showStats, isLoading, monthlyApplications, getProjects, getUsers } =
-    useAppContext();
+  const {
+    showProjectFeatureStats,
+    showProjectStats,
+    isLoading,
+    monthlyProjects,
+    getProjects,
+    getUsers,
+  } = useAppContext();
   useEffect(()=>{
-    showStats()
+    showProjectStats();
+    showProjectFeatureStats();
     getProjects();
     getUsers();
   }, [])
@@ -16,8 +23,8 @@ const Stats = () => {
   if (isLoading) return <Loading center/>
   return (
     <>
-      <StatsContainer />
-      {monthlyApplications.length > 0 && <ChartsContainer />}
+      <ProjectStatsContainer />
+      {monthlyProjects.length > 0 && <ChartsContainer />}
     </>
   );
 }

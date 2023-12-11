@@ -5,7 +5,7 @@ const {
   createMasterAccountTransaction,
   updateMasterAccountTransaction,
   deleteMasterAccountTransaction,
-} = require("../services/AccountsService")
+} = require("../services/AccountsService");
 
 const CreditTransaction = require("../models/CreditTransaction");
 const DebitTransaction = require("../models/DebitTransaction");
@@ -24,8 +24,7 @@ const {
   NotFoundError,
 } = require("../errors");
 const checkPermissions = require("../utils/checkPermissions");
-const mongoose = require("mongoose");
-const moment = require("moment");
+const { formatToLocaleCurrency } = require("../utils/currencyFormat");
 
 const getMasterAccount = async (req, res) => {
   const { date, search, searchByTransaction, sort } = req.query;
@@ -75,7 +74,6 @@ const getMasterAccount = async (req, res) => {
     .status(StatusCodes.OK)
     .json({ transactions, totalTransactions, numOfPages });
 };
-
 
 const getAllCreditTransactions = async (req, res) => {
   const { status, search, date, sort, project_id } = req.query;
@@ -127,7 +125,6 @@ const getAllCreditTransactions = async (req, res) => {
 };
 
 const createCreditTransaction = async (req, res) => {
- 
   const { amount, status, transaction_type, account_holder, projectId } =
     req.body;
   if (!amount || !status || !transaction_type || !account_holder || !projectId)
@@ -221,6 +218,25 @@ const deleteCreditTransaction = async (req, res) => {
     .json({ msg: "Failed to delete transaction" });
 };
 
+const getTotalFunding = async (req, res) => {
+  const { projectId } = req.query;
+  if (!projectId) throw new BadRequestError("Please provide the projectId");
+  const transactions = await CreditTransaction.find({ project: projectId });
+  if (!transactions)
+    throw new BadRequestError("No funding found for this project");
+  let funding = 0;
+
+  if (transactions) {
+    for (let transaction of transactions) {
+      funding += parseInt(transaction.amount);
+    }
+  }
+
+  funding = formatToLocaleCurrency(funding);
+
+  res.status(StatusCodes.OK).json({ funding });
+};
+
 const getAllDebitTransactions = async (req, res) => {
   const { status, search, date, sort, feature_id } = req.query;
 
@@ -273,7 +289,7 @@ const getAllDebitTransactions = async (req, res) => {
 };
 
 const createDebitTransaction = async (req, res) => {
-  const { amount, description,status,  featureId } = req.body;
+  const { amount, description, status, featureId } = req.body;
   if (!amount || !description || !status || !featureId)
     throw new BadRequestError("Please provide all values");
   req.body.createdBy = req.user.userId;
@@ -313,7 +329,7 @@ const updateDebitTransaction = async (req, res) => {
       `No debit transaction with id ${transaction_id} found`
     );
   checkPermissions(req.user, transaction.createdBy);
-  
+
   const updatedTransaction = await DebitTransaction.findOneAndUpdate(
     { _id: transaction_id },
     req.body,
@@ -363,6 +379,69 @@ const deleteDebitTransaction = async (req, res) => {
     .json({ msg: "Failed to delete transaction" });
 };
 
+const getTotalExpenditure = async (req, res) => {
+  const { projectId } = req.query;
+  if (!projectId) throw new BadRequestError("Please provide the projectId");
+  const features = await Feature.find({ project: projectId });
+  if (!features)
+    throw new BadRequestError("No expenditure found for this project");
+  let expenditure = 0;
+
+  for (let feature of features) {
+    const transactions = await DebitTransaction.find({ feature: feature });
+
+    if (transactions) {
+      for (let transaction of transactions) {
+        expenditure += parseInt(transaction.amount);
+      }
+    }
+  }
+
+  expenditure = formatToLocaleCurrency(expenditure);
+
+  res.status(StatusCodes.OK).json({ expenditure });
+};
+
+const getProjectOperatingCosts = async (req, res) => {
+  const { projectId } = req.query;
+  if (!projectId) throw new BadRequestError("Please provide the projectId");
+  let funding = 0;
+  let expenditure = 0;
+  let operatingBalance = 0;
+
+
+  //expenditure
+  const features = await Feature.find({ project: projectId });
+  if (features) {
+    for (let feature of features) {
+      const transactions = await DebitTransaction.find({ feature: feature });
+
+      if (transactions) {
+        for (let transaction of transactions) {
+          expenditure += parseInt(transaction.amount);
+        }
+      }
+    }
+  }
+
+  //funding
+  const transactions = await CreditTransaction.find({ project: projectId });
+
+  if (transactions) {
+    for (let transaction of transactions) {
+      funding += parseInt(transaction.amount);
+    }
+  }
+//operating balance
+  operatingBalance = funding - expenditure
+
+  funding = formatToLocaleCurrency(funding);
+  expenditure = formatToLocaleCurrency(expenditure);
+  operatingBalance = formatToLocaleCurrency(operatingBalance);
+
+  res.status(StatusCodes.OK).json({ operatingBalance, funding, expenditure });
+};
+
 module.exports = {
   getMasterAccount,
   createCreditTransaction,
@@ -373,4 +452,7 @@ module.exports = {
   getAllDebitTransactions,
   deleteCreditTransaction,
   deleteDebitTransaction,
+  getTotalExpenditure,
+  getTotalFunding,
+  getProjectOperatingCosts,
 };

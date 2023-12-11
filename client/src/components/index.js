@@ -20,6 +20,7 @@ import FeatureContainer from "./FeatureContainer";
 import ProjectContainer from "./ProjectContainer";
 import ProjectSearchContainer from "./ProjectSearchContainer";
 import FeatureSearchContainer  from "./FeatureSearchContainer";
+import ProjectStatsContainer from "./ProjectStatsContainer";
 
 export {
   Logo,
@@ -44,4 +45,5 @@ export {
   ProjectContainer,
   ProjectSearchContainer,
   FormCheckBox,
+  ProjectStatsContainer,
 };

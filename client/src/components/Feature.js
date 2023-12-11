@@ -11,7 +11,8 @@ const Feature = ({
   featureName,
   featureDescription,
   featureCategory,
-  featureStatus,  
+  featureStatus,
+  project,
   createdAt,
 }) => {
  
@@ -47,9 +48,9 @@ const Feature = ({
             <Link
               to='/add-feature'
               className='btn edit-btn'
-              onClick={() => setEditFeature(_id)}
+              onClick={() => setEditFeature(_id, project)}
             >
-              Edit
+              Edit/View
             </Link>
             <button
               className='btn delete-btn'

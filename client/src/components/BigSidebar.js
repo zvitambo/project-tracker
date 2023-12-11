@@ -16,7 +16,12 @@ const BigSidebar = () => {
       >
         <div className='content'>
           <header>
-            <Logo />
+            <Logo
+              width='180px'
+              height='80px'
+              marginTop='20px'
+              marginBottom='10px'
+            />
           </header>
           <Navlinks />
         </div>

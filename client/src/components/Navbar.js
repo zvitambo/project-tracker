@@ -16,9 +16,16 @@ const Navbar = () => {
           <FaAlignLeft />
         </button>
         <div>
-          {showSidebar && <Logo />}
+          {showSidebar && (
+            <Logo
+              width='260px'
+              height='120px'
+              marginTop='20px'
+              marginBottom='10px'
+            />
+          )}
 
-           {/* <h3 className='logo-text'>dashboard</h3>  */}
+          {/* <h3 className='logo-text'>dashboard</h3>  */}
         </div>
         <div className='btn-container'>
           <button

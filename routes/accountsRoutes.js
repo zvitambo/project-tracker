@@ -8,7 +8,10 @@ const {
   getAllCreditTransactions,
   getAllDebitTransactions,
   deleteCreditTransaction,
-  deleteDebitTransaction
+  deleteDebitTransaction,
+  getTotalExpenditure,
+  getTotalFunding,
+  getProjectOperatingCosts,
 } = require("../controllers/accountsController");
 const router = express.Router();
 
@@ -22,6 +25,7 @@ router
 router
   .route("/credit")
   .get(getAllCreditTransactions)
+router.route("/credit/funding").get(getTotalFunding);
 router.route("/credit/").post(createCreditTransaction);
 router
   .route("/credit/:id")
@@ -30,10 +34,14 @@ router
 
 //debit
 router.route("/debit").get(getAllDebitTransactions);
+router.route("/debit/expenditure").get(getTotalExpenditure);
 router.route("/debit/").post(createDebitTransaction);
 router
   .route("/debit/:id")
   .delete(deleteDebitTransaction)
   .patch(updateDebitTransaction);
+
+//getProjectOperatingCosts
+router.route("/project").get(getProjectOperatingCosts);
 
 module.exports = router;

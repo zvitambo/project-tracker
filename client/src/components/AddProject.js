@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { FormRow, Alert, FormRowSelect } from "./";
 import { FaWpforms } from "react-icons/fa";
 import { useAppContext } from "../context/appContext";
@@ -5,6 +6,11 @@ import Wrapper from "../assets/wrappers/DashboardFormPage";
 import { Link } from "react-router-dom";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
+import UploadImage from "./UploadImage";
+import ImageDisplay from "./ImageDisplay";
+import FormButtonLayout from "./FormButtonLayout";
+
+import { useEffect } from "react";
 
 const AddProject = () => {
   const {
@@ -32,8 +38,18 @@ const AddProject = () => {
     creditTransactionOwnerId,
     createCreditTransaction,
     users,
-    projectRunningBalance,
+    uploadAttachment,
+    imageDescription,
+    imageStatus,
+    operatingBalance,
+    funding,
   } = useAppContext();
+
+  useEffect(() => {
+    if (!isEditing) {
+      clearValues();
+    }
+  }, [isEditing]);
 
   const handleInput = (e) => {
     const name = e.target.name;
@@ -43,6 +59,13 @@ const AddProject = () => {
   };
 
   const handleSubmit = (e) => {
+    if (uploadAttachment) {
+      if (!imageDescription || !imageStatus) {
+        displayAlert();
+        return;
+      }
+    }
+
     e.preventDefault();
     if (!name || !description || !projectCategory || !projectStatus) {
       displayAlert();
@@ -58,14 +81,6 @@ const AddProject = () => {
   const handleSubmitTransaction = (e) => {
     e.preventDefault();
 
-    console.log(
-      "creditTransactionAmount,creditTransactionStatus, creditTransactionType , creditTransactionOwnerId",
-      creditTransactionAmount,
-      creditTransactionStatus,
-      creditTransactionType,
-      creditTransactionOwnerId,
-      isEditing
-    );
     if (
       !creditTransactionAmount ||
       !creditTransactionStatus ||
@@ -93,6 +108,9 @@ const AddProject = () => {
           <Tab disabled={!isEditing}>
             <h5 className='form-text-header'>funding</h5>
           </Tab>
+          <Tab>
+            <h5 className='form-text-header'>Attachments</h5>
+          </Tab>
         </TabList>
 
         <TabPanel>
@@ -103,6 +121,7 @@ const AddProject = () => {
                 {isEditing ? " edit project" : " add project"}
               </span>
             </h3>
+
             {showAlert && <Alert />}
             {isEditing && (
               <Link
@@ -116,7 +135,11 @@ const AddProject = () => {
                 add task/feature
               </Link>
             )}
-
+            {isEditing && (
+              <h4 className='money-balance'>
+                operating balance: {` ${operatingBalance}`}
+              </h4>
+            )}
             <hr className='hr-center' />
             <div className='form-center'>
               <FormRow
@@ -147,27 +170,36 @@ const AddProject = () => {
                 handleChange={handleInput}
                 list={projectStatusOptions}
               />
+              {<UploadImage />}
+              <FormButtonLayout
+                singleDiv={true}
+                isLoading={isLoading}
+                handleSubmit={handleSubmit}
+                clearValues={clearValues}
+              />
 
-              <div className='btn-separate-container'>
-                <button
-                  className='btn btn-block submit-btn'
-                  onClick={handleSubmit}
-                  disabled={isLoading}
-                >
-                  submit
-                </button>
-              </div>
-              <div className='btn-separate-container'>
-                <button
-                  className='btn btn-block clear-btn'
-                  onClick={(e) => {
-                    e.preventDefault();
-                    clearValues();
-                  }}
-                >
-                  clear
-                </button>
-              </div>
+              {/* <div className={isEditing ? 'btn-container': ''}>
+                <div className='btn-separate-container'>
+                  <button
+                    className='btn btn-block submit-btn'
+                    onClick={handleSubmit}
+                    disabled={isLoading}
+                  >
+                    submit
+                  </button>
+                </div>
+                <div className='btn-separate-container'>
+                  <button
+                    className='btn btn-block clear-btn'
+                    onClick={(e) => {
+                      e.preventDefault();
+                      clearValues();
+                    }}
+                  >
+                    clear
+                  </button>
+                </div>
+              </div> */}
             </div>
           </form>
         </TabPanel>
@@ -179,9 +211,9 @@ const AddProject = () => {
                 {" add transaction"}
               </span>
             </h3>
-            <h4 className='money-balance'>
-              operating balance: {`$ ${projectRunningBalance}`}
-            </h4>
+
+            <h4 className='money-balance'>funding to date: {` ${funding}`}</h4>
+
             {showAlert && <Alert />}
 
             <hr className='hr-center' />
@@ -238,6 +270,9 @@ const AddProject = () => {
               </div>
             </div>
           </form>
+        </TabPanel>
+        <TabPanel>
+          <ImageDisplay />
         </TabPanel>
       </Tabs>
     </Wrapper>

@@ -339,6 +339,7 @@ ul {
 }
 
 .money-balance {
+  margin-right: 3rem;
   float: right;
   color: var(--light-green-dark);
 }

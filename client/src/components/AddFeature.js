@@ -7,6 +7,7 @@ import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
 import UploadImage from "./UploadImage";
 import ImageDisplay from "./ImageDisplay";
+import FormButtonLayout from "./FormButtonLayout";
 
 const AddFeature = () => {
   const {
@@ -26,30 +27,31 @@ const AddFeature = () => {
     featureStatus,
     createFeature,
     editFeature,
-    featureExpenditureBalance,
+   // featureExpenditureBalance,
     debitTransactionAmount,
     debitTransactionStatus,
     debitTransactionDescription,
     transactionStatusOptions,
     createDebitTransaction,
-    debitTransactionHasReceipt,
-   // formData,
+     expenditure,
+    uploadAttachment,
+    // formData,
     imageDescription,
-   // imageStatusOptions,
+    // imageStatusOptions,
     imageStatus,
     //imageOwner,
-   // createImage,
+    // createImage,
   } = useAppContext();
 
   const handleInput = (e) => {
     const name = e.target.name;
-    let value = "";
-    if (name === "debitTransactionHasReceipt") {
-      value = e.target.checked;
-    } else {
-      value = e.target.value;
-    }
-    //const value = e.target.value;
+    // let value = "";
+    // if (name === "debitTransactionHasReceipt") {
+    //   value = e.target.checked;
+    // } else {
+    //   value = e.target.value;
+    // }
+    const value = e.target.value;
     console.log(name, value);
     handleChange({ name, value });
   };
@@ -86,14 +88,8 @@ const AddFeature = () => {
   const handleSubmitTransaction = (e) => {
     e.preventDefault();
 
-    if (debitTransactionHasReceipt) {
-     
-      if (
-        !imageDescription ||
-        !imageStatus 
-      ) {
-
-       
+    if (uploadAttachment) {
+      if (!imageDescription || !imageStatus) {
         displayAlert();
         return;
       }
@@ -102,8 +98,12 @@ const AddFeature = () => {
 
       //createImage();
     } else {
-      if (!featureName || !featureDescription || !featureCategory || !featureStatus) {
-        
+      if (
+        !featureName ||
+        !featureDescription ||
+        !featureCategory ||
+        !featureStatus
+      ) {
         displayAlert();
         return;
       }
@@ -123,7 +123,7 @@ const AddFeature = () => {
           <Tab disabled={!isEditingFeature}>
             <h5 className='form-text-header'>expenditure</h5>
           </Tab>
-          <Tab >
+          <Tab>
             <h5 className='form-text-header'>Attachments</h5>
           </Tab>
         </TabList>
@@ -180,7 +180,15 @@ const AddFeature = () => {
                 list={featureStatusOptions}
               />
 
-              <div className='btn-separate-container'>
+              {<UploadImage />}
+              <FormButtonLayout
+                singleDiv={true}
+                isLoading={isLoading}
+                handleSubmit={handleSubmit}
+                clearValues={clearValues}
+              />
+
+              {/* <div className='btn-separate-container'>
                 <button
                   className='btn btn-block submit-btn'
                   onClick={handleSubmit}
@@ -199,7 +207,7 @@ const AddFeature = () => {
                 >
                   clear
                 </button>
-              </div>
+              </div> */}
             </div>
           </form>
         </TabPanel>
@@ -212,7 +220,7 @@ const AddFeature = () => {
               </span>
             </h3>
             <h4 className='money-balance'>
-              current expenditure: {`$ ${featureExpenditureBalance}`}
+              current expenditure: {`${expenditure}`}
             </h4>
             {showAlert && <Alert />}
 
@@ -240,7 +248,7 @@ const AddFeature = () => {
                 handleChange={handleInput}
                 list={transactionStatusOptions}
               />
-              <UploadImage/>
+              <UploadImage />
               {/* {
                 <FormCheckBox
                   type='checkbox'
@@ -304,7 +312,7 @@ const AddFeature = () => {
           </form>
         </TabPanel>
         <TabPanel>
-          <ImageDisplay/>
+          <ImageDisplay />
         </TabPanel>
       </Tabs>
     </Wrapper>

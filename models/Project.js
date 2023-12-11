@@ -27,6 +27,7 @@ const ProjectSchema = new mongoose.Schema(
       enum: [
         PROJECT_CATEGORY.FAMILY_FUNCTION,
         PROJECT_CATEGORY.FAMILY_HOME_RENOVATIONS,
+        PROJECT_CATEGORY.LEGAL_PROCESS
       ],
       default: PROJECT_CATEGORY.FAMILY_HOME_RENOVATIONS,
     },

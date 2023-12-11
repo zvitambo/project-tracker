@@ -2,7 +2,8 @@ const express= require('express');
 const app = express();
 const dotenv = require('dotenv');
 const morgan = require('morgan');
-//const cors = require("cors");
+
+
 dotenv.config();
 require("express-async-errors");
 const path = require('path');

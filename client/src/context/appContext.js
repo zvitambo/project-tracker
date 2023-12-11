@@ -50,6 +50,8 @@ import {
   EDIT_PROJECT_ERROR,
   SET_IS_PROJECT,
   SET_GET_PROJECTS,
+  SHOW_PROJECT_STATS_BEGIN,
+  SHOW_PROJECT_STATS_SUCCESS,
   //FEATURES
   SET_IS_FEATURE,
   CREATE_FEATURE_BEGIN,
@@ -62,6 +64,8 @@ import {
   EDIT_FEATURE_BEGIN,
   EDIT_FEATURE_SUCCESS,
   EDIT_FEATURE_ERROR,
+  SHOW_FEATURE_STATS_BEGIN,
+  SHOW_FEATURE_STATS_SUCCESS,
   //CREDIT_TRANSACTIONS
   CREATE_CREDIT_TRANSACTION_BEGIN,
   CREATE_CREDIT_TRANSACTION_SUCCESS,
@@ -73,6 +77,10 @@ import {
   CREATE_DEBIT_TRANSACTION_ERROR,
   SET_EDIT_DEBIT_TRANSACTION,
 
+  // PROJECT OPERATING COSTS
+  GET_PROJECT_OPERATING_COSTS_BEGIN,
+  GET_PROJECT_OPERATING_COSTS_SUCCESS,
+
   //IMAGES
   UPLOAD_IMAGE_ERROR,
   CREATE_IMAGE_BEGIN,
@@ -80,6 +88,7 @@ import {
   CREATE_IMAGE_ERROR,
   GET_IMAGES_BEGIN,
   GET_IMAGES_SUCCESS,
+  SET_IMAGE_UPLOAD,
 } from "./actions";
 
 const user = localStorage.getItem("user");
@@ -140,6 +149,8 @@ export const initialState = {
   searchByProject: "",
   projectRunningBalance: "0.00",
   featureExpenditureBalance: "0.00",
+  projectStats: {},
+  monthlyProjects: [],
   //Features
   editFeatureId: "",
   editFeatureUUID: "",
@@ -153,6 +164,8 @@ export const initialState = {
   features: [],
   totalFeatures: 0,
   totalExpenditure: "0.00",
+  featureStats: {},
+  monthlyFeatures: [],
   //credit_transactions
   creditTransactionAmount: 0,
   transactionStatusOptions: ["Complete", "Incomplete", "Reversed"],
@@ -165,7 +178,11 @@ export const initialState = {
   debitTransactionUUID: "",
   debitTransactionStatus: "Complete",
   debitTransactionDescription: "",
-  debitTransactionHasReceipt: false,
+
+  operatingBalance: "$0.00",
+  funding: "$0.00",
+  expenditure: "$0.00",
+
   formData: new FormData(),
   //Images
   imageName: "",
@@ -180,7 +197,8 @@ export const initialState = {
   imageStatus: "Receipt",
   imageOwner: "",
   imageUrl: "",
-  images:[]
+  images: [],
+  uploadAttachment: false,
 };
 
 const AppContext = React.createContext();
@@ -343,15 +361,31 @@ const AppProvider = ({ children }) => {
   const createProject = async () => {
     dispatch({ type: CREATE_PROJECT_BEGIN });
     try {
-      const { name, description, projectCategory, projectStatus } = state;
-      await authFetch.post("/projects", {
+      const {
+        name,
+        description,
+        projectCategory,
+        projectStatus,
+        uploadAttachment,
+      } = state;
+      const {
+        data: {
+          project: { uuid },
+        },
+      } = await authFetch.post("/projects", {
         name,
         description,
         projectCategory,
         projectStatus,
       });
-      dispatch({ type: CREATE_PROJECT_SUCCESS });
-      dispatch({ type: CLEAR_VALUES });
+
+      if (uploadAttachment) {
+        createImage(uuid);
+        dispatch({ type: CREATE_PROJECT_SUCCESS });
+      } else {
+        dispatch({ type: CREATE_PROJECT_SUCCESS });
+        dispatch({ type: CLEAR_VALUES });
+      }
     } catch (error) {
       if (error.response.status !== 401) return;
       dispatch({
@@ -371,14 +405,24 @@ const AppProvider = ({ children }) => {
         featureDescription,
         featureCategory,
         featureStatus,
+        uploadAttachment,
       } = state;
-      await authFetch.post("projects/features", {
+      const {
+        data: {
+          feature: { uuid },
+        },
+      } = await authFetch.post("projects/features", {
         featureName,
         featureDescription,
         featureCategory,
         featureStatus,
         projectId: editProjectId,
       });
+
+      if (uploadAttachment) {
+        createImage(uuid);
+      }
+
       dispatch({ type: CREATE_FEATURE_SUCCESS });
       //dispatch({ type: CLEAR_VALUES });
     } catch (error) {
@@ -410,6 +454,7 @@ const AppProvider = ({ children }) => {
         projectId: editProjectId,
       });
       dispatch({ type: CREATE_CREDIT_TRANSACTION_SUCCESS });
+      getProjectOperatingCosts(editProjectId);
       dispatch({ type: CLEAR_VALUES });
     } catch (error) {
       if (error.response.status !== 401) return;
@@ -429,41 +474,39 @@ const AppProvider = ({ children }) => {
         debitTransactionAmount,
         debitTransactionStatus,
         debitTransactionDescription,
-        debitTransactionHasReceipt,
+        uploadAttachment,
+        editProjectId,
       } = state;
-     const {
+      const {
         data: {
           transaction: { uuid },
         },
-      } =  await authFetch.post("accounts/debit/", {
+      } = await authFetch.post("accounts/debit/", {
         amount: debitTransactionAmount,
         status: debitTransactionStatus,
         description: debitTransactionDescription,
         featureId: editFeatureId,
       });
 
-      
-
       // dispatch({
       //     type: SET_EDIT_DEBIT_TRANSACTION,
       //     payload: {  uuid },
       //   });
-    
-      //     dispatch({ type: CREATE_DEBIT_TRANSACTION_SUCCESS });
-         // dispatch({ type: CLEAR_VALUES });
 
-      if (debitTransactionHasReceipt){
-         createImage(uuid)
+      //     dispatch({ type: CREATE_DEBIT_TRANSACTION_SUCCESS });
+      // dispatch({ type: CLEAR_VALUES });
+      getProjectOperatingCosts(editProjectId);
+      if (uploadAttachment) {
+        createImage(uuid);
         dispatch({
           type: SET_EDIT_DEBIT_TRANSACTION,
           payload: { uuid },
         });
-         dispatch({ type: CREATE_DEBIT_TRANSACTION_SUCCESS });
-      }else{
-          dispatch({ type: CREATE_DEBIT_TRANSACTION_SUCCESS });
-          dispatch({ type: CLEAR_VALUES });
+        dispatch({ type: CREATE_DEBIT_TRANSACTION_SUCCESS });
+      } else {
+        dispatch({ type: CREATE_DEBIT_TRANSACTION_SUCCESS });
+        dispatch({ type: CLEAR_VALUES });
       }
-      
     } catch (error) {
       if (error.response.status !== 401) return;
       dispatch({
@@ -486,7 +529,7 @@ const AppProvider = ({ children }) => {
           "Content-Type": "multipart/form-data",
         },
       });
-      return {name, src};
+      return { name, src };
     } catch (error) {
       if (error.response.status !== 401) return;
       dispatch({
@@ -499,8 +542,7 @@ const AppProvider = ({ children }) => {
   const createImage = async (uuid) => {
     dispatch({ type: CREATE_IMAGE_BEGIN });
     try {
-      const {  imageDescription, imageStatus, imageOwner} =
-        state;
+      const { imageDescription, imageStatus, imageOwner } = state;
       const { name, src } = await uploadImage();
       await authFetch.post("images/", {
         name,
@@ -510,10 +552,9 @@ const AppProvider = ({ children }) => {
         url: src,
       });
 
-      
       dispatch({ type: CREATE_IMAGE_SUCCESS });
       dispatch({ type: CLEAR_VALUES });
-      getImages()
+      getImages();
     } catch (error) {
       if (error.response.status !== 401) return;
       dispatch({
@@ -582,7 +623,7 @@ const AppProvider = ({ children }) => {
         },
       });
     } catch (error) {
-      //logoutUser();
+      logoutUser();
     }
     clearAlert();
   };
@@ -629,7 +670,7 @@ const AppProvider = ({ children }) => {
         },
       });
     } catch (error) {
-      //logoutUser();
+      logoutUser();
     }
     clearAlert();
   };
@@ -655,37 +696,57 @@ const AppProvider = ({ children }) => {
     }
     clearAlert();
   };
-   const getImages = async () => {
-     const { editFeatureId, editProjectId } =
-       state;
-     let url = `/images?page=all`;
 
-     if (editFeatureId) {
-       url = url + `&featureId=${editFeatureId}&debit=true`;
-     }
-     if (editProjectId) {
-       url = url + `&projectId=${editProjectId}`;
-     }
+  const getProjectOperatingCosts = async (projectId) => {
+    //const { editProjectId } = state;
+    let url = `/accounts/project/?projectId=${projectId}`;
 
-     dispatch({ type: GET_IMAGES_BEGIN });
-     try {
-       const { data } = await authFetch(url);
-       const { images } = data;
+    dispatch({ type: GET_PROJECT_OPERATING_COSTS_BEGIN });
+    try {
+      const { data } = await authFetch(url);
+      const { operatingBalance, funding, expenditure } = data;
 
-       console.log(images)
+      dispatch({
+        type: GET_PROJECT_OPERATING_COSTS_SUCCESS,
+        payload: {
+          operatingBalance,
+          funding,
+          expenditure,
+        },
+      });
+    } catch (error) {
+      //logoutUser();
+    }
+    clearAlert();
+  };
 
-       dispatch({
-         type: GET_IMAGES_SUCCESS,
-         payload: {
-           images
-         },
-       });
-     } catch (error) {
-       //logoutUser();
-     }
-     clearAlert();
-   };
+  const getImages = async () => {
+    const { editFeatureId, editProjectId } = state;
+    let url = `/images?page=all`;
 
+    if (editFeatureId) {
+      url = url + `&featureId=${editFeatureId}`;
+    }
+    if (editProjectId) {
+      url = url + `&projectId=${editProjectId}`;
+    }
+
+    dispatch({ type: GET_IMAGES_BEGIN });
+    try {
+      const { data } = await authFetch(url);
+      const { images } = data;
+
+      dispatch({
+        type: GET_IMAGES_SUCCESS,
+        payload: {
+          images,
+        },
+      });
+    } catch (error) {
+      //logoutUser();
+    }
+    clearAlert();
+  };
 
   const setEditJob = (id) => {
     dispatch({ type: SET_EDIT_JOB, payload: { id } });
@@ -693,12 +754,15 @@ const AppProvider = ({ children }) => {
 
   const setEditProject = (id) => {
     dispatch({ type: SET_EDIT_PROJECT, payload: { id } });
+    getProjectOperatingCosts(id);
   };
 
-  const setEditFeature = (id) => {
+  const setEditFeature = (id, project) => {
     dispatch({ type: CLEAR_VALUES });
     dispatch({ type: SET_EDIT_FEATURE, payload: { id } });
+    getProjectOperatingCosts(project);
   };
+
   const setIsProject = () => {
     dispatch(dispatch({ type: SET_IS_PROJECT }));
   };
@@ -736,16 +800,27 @@ const AppProvider = ({ children }) => {
         description,
         projectCategory,
         projectStatus,
+        uploadAttachment,
       } = state;
-      await authFetch.patch(`/projects/${editProjectId}`, {
+      const {
+        data: {
+          updatedProject: { uuid },
+        },
+      } = await authFetch.patch(`/projects/${editProjectId}`, {
         name,
         description,
         projectCategory,
         projectStatus,
       });
-      dispatch({ type: EDIT_PROJECT_SUCCESS });
-      redirect("/all-projects");
-      dispatch({ type: CLEAR_VALUES });
+
+      if (uploadAttachment) {
+        createImage(uuid);
+        dispatch({ type: EDIT_PROJECT_SUCCESS });
+      } else {
+        dispatch({ type: EDIT_PROJECT_SUCCESS });
+        redirect("/all-projects");
+        dispatch({ type: CLEAR_VALUES });
+      }
     } catch (error) {
       if (error.response.status === 401) return;
       dispatch({
@@ -767,14 +842,25 @@ const AppProvider = ({ children }) => {
         featureDescription,
         featureCategory,
         featureStatus,
+        uploadAttachment,
       } = state;
-      await authFetch.patch(`/projects/features/${editFeatureId}`, {
+      const {
+        data: {
+          updatedFeature: { uuid },
+        },
+      } = await authFetch.patch(`/projects/features/${editFeatureId}`, {
         featureName,
         featureDescription,
         featureCategory,
         featureStatus,
       });
-      dispatch({ type: EDIT_FEATURE_SUCCESS });
+
+      if (uploadAttachment) {
+        createImage(uuid);
+        dispatch({ type: EDIT_FEATURE_SUCCESS });
+      } else {
+        dispatch({ type: EDIT_FEATURE_SUCCESS });
+      }
       dispatch({ type: CLEAR_VALUES });
     } catch (error) {
       if (error.response.status === 401) return;
@@ -785,7 +871,7 @@ const AppProvider = ({ children }) => {
     }
     clearAlert();
 
-    //dispatch({ type: CLEAR_VALUES });
+    dispatch({ type: CLEAR_VALUES });
   };
 
   const deleteJob = async (jobId) => {
@@ -794,7 +880,7 @@ const AppProvider = ({ children }) => {
       await authFetch.delete(`/jobs/${jobId}`);
       getJobs();
     } catch (error) {
-      // logoutUser();
+      logoutUser();
     }
   };
 
@@ -804,7 +890,7 @@ const AppProvider = ({ children }) => {
       await authFetch.delete(`/projects/${projectId}`);
       getProjects();
     } catch (error) {
-      // logoutUser();
+       logoutUser();
     }
   };
 
@@ -814,7 +900,7 @@ const AppProvider = ({ children }) => {
       await authFetch.delete(`/projects/features/${featureId}`);
       getFeatures();
     } catch (error) {
-      // logoutUser();
+       logoutUser();
     }
   };
 
@@ -830,7 +916,40 @@ const AppProvider = ({ children }) => {
         },
       });
     } catch (error) {
-      //logoutUser();
+      logoutUser();
+    }
+    clearAlert();
+  };
+
+  const showProjectStats = async () => {
+    dispatch({ type: SHOW_PROJECT_STATS_BEGIN });
+    try {
+      const { data } = await authFetch("/projects/stats");
+      dispatch({
+        type: SHOW_PROJECT_STATS_SUCCESS,
+        payload: {
+          projectStats: data.defaultStats,
+          monthlyProjects: data.monthlyProjects,
+        },
+      });
+    } catch (error) {
+      logoutUser();
+    }
+    clearAlert();
+  };
+  const showProjectFeatureStats = async () => {
+    dispatch({ type: SHOW_FEATURE_STATS_BEGIN });
+    try {
+      const { data } = await authFetch("/projects/features/stats");
+      dispatch({
+        type: SHOW_FEATURE_STATS_SUCCESS,
+        payload: {
+          featureStats: data.defaultStats,
+          monthlyFeatures: data.monthlyFeatures,
+        },
+      });
+    } catch (error) {
+      logoutUser();
     }
     clearAlert();
   };
@@ -843,7 +962,9 @@ const AppProvider = ({ children }) => {
     dispatch({ type: CHANGE_PAGE, payload: { page } });
   };
 
-
+  const setImageUpload = () => {
+    dispatch({ type: SET_IMAGE_UPLOAD });
+  };
 
   return (
     <AppContext.Provider
@@ -875,6 +996,7 @@ const AppProvider = ({ children }) => {
         editProject,
         setIsProject,
         setGetProjects,
+        showProjectStats,
         //Feature
         setIsFeature,
         createFeature,
@@ -882,6 +1004,7 @@ const AppProvider = ({ children }) => {
         setEditFeature,
         deleteFeature,
         editFeature,
+        showProjectFeatureStats,
         //Credit Transactions
         createCreditTransaction,
 
@@ -889,6 +1012,8 @@ const AppProvider = ({ children }) => {
         createDebitTransaction,
         createImage,
         getImages,
+        setImageUpload,
+        getProjectOperatingCosts,
       }}
     >
       {children}

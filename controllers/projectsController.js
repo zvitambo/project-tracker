@@ -17,7 +17,7 @@ const getAllProjects = async (req, res) => {
   const { projectStatus, name, description, projectCategory, sort } = req.query;
   console.log(req.query);
   const queryObject = {
-    createdBy: req.user.userId,
+    //createdBy: req.user.userId,
   };
 
   if (projectStatus && projectStatus !== "all") {
@@ -102,8 +102,8 @@ const deleteProject = async (req, res) => {
 
 const showProjectStats = async (req, res) => {
   let stats = await Project.aggregate([
-    { $match: { createdBy: mongoose.Types.ObjectId(req.user.userId) } },
-    { $group: { _id: "$status", count: { $sum: 1 } } },
+    //{ $match: { createdBy: mongoose.Types.ObjectId(req.user.userId) } },
+    { $group: { _id: "$projectStatus", count: { $sum: 1 } } },
   ]);
 console.log(stats);
   stats = stats.reduce((acc, curr) => {
@@ -113,11 +113,11 @@ console.log(stats);
   }, {});
   const defaultStats = {
     inprogress: stats["In Progress"] || 0,
-    onhold: stats["Finished"] || 0,
-    finished: stats["On Hold"] || 0,
+    onhold: stats["On Hold"] || 0,
+    finished: stats["Finished"] || 0,
   };
-  let monthlyApplications = await Project.aggregate([
-    { $match: { createdBy: mongoose.Types.ObjectId(req.user.userId) } },
+  let monthlyProjects = await Project.aggregate([
+    // { $match: { createdBy: mongoose.Types.ObjectId(req.user.userId) } },
     {
       $group: {
         _id: {
@@ -131,7 +131,7 @@ console.log(stats);
     { $limit: 12 },
   ]);
 
-  monthlyApplications = monthlyApplications
+  monthlyProjects = monthlyProjects
     .map((item) => {
       const {
         _id: { year, month },
@@ -145,7 +145,7 @@ console.log(stats);
     })
     .reverse();
 
-  res.status(StatusCodes.OK).json({ defaultStats, monthlyApplications });
+  res.status(StatusCodes.OK).json({ defaultStats, monthlyProjects });
 };
 
 
@@ -277,15 +277,15 @@ const showProjectFeatureStats = async (req, res) => {
    const {project_id} = req.query;
 
   let stats = await Feature.aggregate([
-    {
-      $match: {
-        $and: [
-         // { createdBy: mongoose.Types.ObjectId(req.user.userId) },
-          { project: mongoose.Types.ObjectId(project_id) },
-        ],
-      },
-    },
-    { $group: { _id: "$status", count: { $sum: 1 } } },
+    // {
+    //   $match: {
+    //     $and: [
+    //     { createdBy: mongoose.Types.ObjectId(req.user.userId) },
+    //      { project: mongoose.Types.ObjectId(project_id) },
+    //     ],
+    //   },
+    // },
+    { $group: { _id: "$featureStatus", count: { $sum: 1 } } },
   ]);
 
   stats = stats.reduce((acc, curr) => {
@@ -295,11 +295,11 @@ const showProjectFeatureStats = async (req, res) => {
   }, {});
    const defaultStats = {
      inprogress: stats["In Progress"] || 0,
-     onhold: stats["Finished"] || 0,
-     finished: stats["On Hold"] || 0,
+     onhold: stats["On Hold"] || 0,
+     finished: stats["Finished"] || 0,
    };
-  let monthlyApplications = await Feature.aggregate([
-    { $match: { createdBy: mongoose.Types.ObjectId(req.user.userId) } },
+  let monthlyFeatures = await Feature.aggregate([
+    // { $match: { createdBy: mongoose.Types.ObjectId(req.user.userId) } },
     {
       $group: {
         _id: {
@@ -313,7 +313,7 @@ const showProjectFeatureStats = async (req, res) => {
     { $limit: 12 },
   ]);
 
-  monthlyApplications = monthlyApplications
+  monthlyFeatures = monthlyFeatures
     .map((item) => {
       const {
         _id: { year, month },
@@ -327,7 +327,7 @@ const showProjectFeatureStats = async (req, res) => {
     })
     .reverse();
 
-  res.status(StatusCodes.OK).json({ defaultStats, monthlyApplications });
+  res.status(StatusCodes.OK).json({ defaultStats, monthlyFeatures });
 };
 
 module.exports = {

@@ -18,7 +18,7 @@ const FormLayout = () => {
     <>
 
       <AddProject />
-      {(!isProject || isEditing) && <FeatureContainer />}
+      {(isProject && isEditing) && <FeatureContainer />}
     </>
   );
 };

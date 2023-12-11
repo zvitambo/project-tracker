@@ -42,6 +42,8 @@ import {
   EDIT_PROJECT_SUCCESS,
   EDIT_PROJECT_ERROR,
   SET_IS_PROJECT,
+  SHOW_PROJECT_STATS_BEGIN,
+  SHOW_PROJECT_STATS_SUCCESS,
   SET_IS_FEATURE,
   CREATE_FEATURE_BEGIN,
   CREATE_FEATURE_SUCCESS,
@@ -53,6 +55,8 @@ import {
   EDIT_FEATURE_BEGIN,
   EDIT_FEATURE_SUCCESS,
   EDIT_FEATURE_ERROR,
+  SHOW_FEATURE_STATS_BEGIN,
+  SHOW_FEATURE_STATS_SUCCESS,
   CREATE_CREDIT_TRANSACTION_BEGIN,
   CREATE_CREDIT_TRANSACTION_SUCCESS,
   CREATE_CREDIT_TRANSACTION_ERROR,
@@ -66,6 +70,9 @@ import {
   CREATE_IMAGE_ERROR,
   GET_IMAGES_BEGIN,
   GET_IMAGES_SUCCESS,
+  SET_IMAGE_UPLOAD,
+  GET_PROJECT_OPERATING_COSTS_BEGIN,
+  GET_PROJECT_OPERATING_COSTS_SUCCESS,
 } from "./actions";
 
 import { initialState } from "./appContext";
@@ -211,8 +218,11 @@ const reducer = (state, action) => {
         debitTransactionDescription: "",
         projectRunningBalance: "0.00",
         featureExpenditureBalance: "0.00",
-        debitTransactionHasReceipt: false,
         debitTransactionUUID: "",
+
+        operatingBalance: "$0.00",
+        funding: "$0.00",
+        expenditure: "$0.00",
 
         //Images
         formData: new FormData(),
@@ -222,6 +232,7 @@ const reducer = (state, action) => {
         imageOwner: "",
         imageUrl: "",
         images: [],
+        uploadAttachment: false,
       };
       return {
         ...state,
@@ -413,6 +424,7 @@ const reducer = (state, action) => {
         description,
         projectCategory,
         projectStatus,
+        editFeatureId: "",
       };
     case DELETE_PROJECT_BEGIN:
       return {
@@ -444,6 +456,19 @@ const reducer = (state, action) => {
       return {
         ...state,
         isProject: true,
+      };
+    case SHOW_PROJECT_STATS_BEGIN:
+      return {
+        ...state,
+        isLoading: true,
+        showAlert: true,
+      };
+    case SHOW_PROJECT_STATS_SUCCESS:
+      return {
+        ...state,
+        projectStats: action.payload.projectStats,
+        monthlyProjects: action.payload.monthlyProjects,
+        isLoading: false,
       };
 
     //Features
@@ -504,6 +529,7 @@ const reducer = (state, action) => {
         featureDescription,
         featureCategory,
         featureStatus,
+        project: featureProject,
       } = feature;
       return {
         ...state,
@@ -515,6 +541,8 @@ const reducer = (state, action) => {
         featureDescription,
         featureCategory,
         featureStatus,
+        editProjectId: featureProject,
+        // featureProject: featureProject,
       };
     case DELETE_FEATURE_BEGIN:
       return {
@@ -541,6 +569,19 @@ const reducer = (state, action) => {
         showAlert: true,
         alertType: "danger",
         alertText: action.payload.msg,
+      };
+    case SHOW_FEATURE_STATS_BEGIN:
+      return {
+        ...state,
+        isLoading: true,
+        showAlert: true,
+      };
+    case SHOW_FEATURE_STATS_SUCCESS:
+      return {
+        ...state,
+        featureStats: action.payload.featureStats,
+        monthlyFeatures: action.payload.monthlyFeatures,
+        isLoading: false,
       };
     //Credit transactions
     case CREATE_CREDIT_TRANSACTION_BEGIN:
@@ -625,17 +666,35 @@ const reducer = (state, action) => {
     case GET_IMAGES_BEGIN:
       return {
         ...state,
-        isLoading: true,
+        isLoading: false,
         showAlert: false,
+        images: [],
       };
     case GET_IMAGES_SUCCESS:
-      
       return {
         ...state,
         isLoading: false,
         images: action.payload.images,
       };
-
+    case SET_IMAGE_UPLOAD:
+      return {
+        ...state,
+        formData: new FormData(),
+      };
+    case GET_PROJECT_OPERATING_COSTS_BEGIN:
+      return {
+        ...state,
+        operatingBalance: "$0.00",
+        funding: "$0.00",
+        expenditure: "$0.00",
+      };
+    case GET_PROJECT_OPERATING_COSTS_SUCCESS:
+      return {
+        ...state,
+        operatingBalance: action.payload.operatingBalance,
+        funding: action.payload.funding,
+        expenditure: action.payload.expenditure,
+      };
     default:
       return state;
   }

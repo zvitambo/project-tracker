@@ -9,6 +9,7 @@ const {
 } = require("../errors");
 const checkPermissions = require("../utils/checkPermissions");
 const Feature = require("../models/Feature");
+const Project = require("../models/Project");
 const CreditTransaction = require("../models/CreditTransaction");
 const DebitTransaction = require("../models/DebitTransaction");
 
@@ -56,23 +57,59 @@ const getImageUrls = async (req, res) => {
 
   if (featureId) {
     const feature = await Feature.findOne({ _id: featureId });
-    if (feature && debit) {
+
+    if (feature){
       const debitTransactions = await DebitTransaction.find({
         feature: feature,
       });
 
-      if (!debitTransactions) throw new NotFoundError(`No images found`);
-
-      for (let transaction of debitTransactions) {
-        const image = await Image.findOne({
-          image_owner: transaction.uuid,
-        });
-        image &&
-          images.push({
-            url: image?.url,
-            name: image?.name,
-            description: image?.description,
+      if (debitTransactions) {
+        for (let transaction of debitTransactions) {
+          const image = await Image.findOne({
+            image_owner: transaction.uuid,
           });
+          image &&
+            images.push({
+              url: image?.url,
+              name: image?.name,
+              description: image?.description,
+            });
+        }
+      }
+
+      const featuresImages = await Image.find({
+        image_owner: feature.uuid,
+      });
+
+      if (featuresImages) {
+        for (let image of featuresImages) {
+          image &&
+            images.push({
+              url: image?.url,
+              name: image?.name,
+              description: image?.description,
+            });
+        }
+      }
+    }
+  }
+
+  if (projectId) {
+    const project = await Project.findOne({ _id: projectId });
+    if (project) {
+      const projectImages = await Image.find({
+        image_owner: project.uuid,
+      });
+
+      if (projectImages) {
+        for (let image of projectImages) {
+          image &&
+            images.push({
+              url: image?.url,
+              name: image?.name,
+              description: image?.description,
+            });
+        }
       }
     }
   }
