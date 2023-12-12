@@ -227,7 +227,7 @@ const AppProvider = ({ children }) => {
       return response;
     },
     (error) => {
-      console.log(error);
+      //console.log(error);
       if (error.response.status === 401) {
         logoutUser();
       }
@@ -311,7 +311,7 @@ const AppProvider = ({ children }) => {
     try {
       const { data } = await authFetch.patch("/auth/updateUser", currentUser);
       const { user, location, token } = data;
-      console.log(data);
+      //console.log(data);
       dispatch({
         type: UPDATE_USER_SUCCESS,
         payload: { user, location, token },

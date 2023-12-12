@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import React, { useEffect } from "react";
 import { FormRow, Alert, FormRowSelect } from "./";
 import { FaWpforms } from "react-icons/fa";
 import { useAppContext } from "../context/appContext";
@@ -10,7 +11,7 @@ import UploadImage from "./UploadImage";
 import ImageDisplay from "./ImageDisplay";
 import FormButtonLayout from "./FormButtonLayout";
 
-import { useEffect } from "react";
+//import { useEffect } from "react";
 
 const AddProject = () => {
   const {
