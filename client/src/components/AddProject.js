@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { FormRow, Alert, FormRowSelect } from "./";
 import { FaWpforms } from "react-icons/fa";
 import { useAppContext } from "../context/appContext";
@@ -46,6 +46,8 @@ const AddProject = () => {
     funding,
   } = useAppContext();
 
+
+  const [tabIndex, setTabIndex] = useState(0);
   useEffect(() => {
     if (!isEditing) {
       clearValues();
@@ -100,7 +102,7 @@ const AddProject = () => {
 
   return (
     <Wrapper>
-      <Tabs>
+      <Tabs selectedIndex={tabIndex} onSelect={(index) => setTabIndex(index)}>
         <TabList>
           <Tab>
             {" "}

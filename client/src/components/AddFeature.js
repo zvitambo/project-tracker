@@ -1,3 +1,4 @@
+import React, {  useState } from "react";
 import { FormRow, Alert, FormRowSelect } from "./";
 import { FaWpforms } from "react-icons/fa";
 import { useAppContext } from "../context/appContext";
@@ -27,13 +28,13 @@ const AddFeature = () => {
     featureStatus,
     createFeature,
     editFeature,
-   // featureExpenditureBalance,
+    // featureExpenditureBalance,
     debitTransactionAmount,
     debitTransactionStatus,
     debitTransactionDescription,
     transactionStatusOptions,
     createDebitTransaction,
-     expenditure,
+    expenditure,
     uploadAttachment,
     // formData,
     imageDescription,
@@ -55,7 +56,7 @@ const AddFeature = () => {
     console.log(name, value);
     handleChange({ name, value });
   };
-
+  const [tabIndex, setTabIndex] = useState(0);
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!featureName || !featureDescription) {
@@ -64,15 +65,12 @@ const AddFeature = () => {
     }
     if (isEditingFeature) {
       editFeature();
-      
 
       return;
     }
 
     createFeature();
-   
   };
-  
 
   // const handleImageUpload = (e) => {
   //   if (e.target.files[0]) {
@@ -114,7 +112,7 @@ const AddFeature = () => {
 
   return (
     <Wrapper>
-      <Tabs>
+      <Tabs selectedIndex={tabIndex} onSelect={(index) => setTabIndex(index)}>
         <TabList>
           <Tab>
             {" "}
