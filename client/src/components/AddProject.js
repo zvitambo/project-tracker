@@ -108,7 +108,7 @@ const AddProject = () => {
             {" "}
             <h5 className='form-text-header'>project details</h5>
           </Tab>
-          <Tab disabled={!isEditing}>
+          <Tab >
             <h5 className='form-text-header'>funding</h5>
           </Tab>
           <Tab>
