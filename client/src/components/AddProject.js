@@ -97,7 +97,7 @@ const AddProject = () => {
 
   return (
     <Wrapper>
-      <Tabs >
+      <Tabs on>
         <TabList>
           <Tab>
             {" "}

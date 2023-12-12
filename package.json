@@ -1,7 +1,7 @@
 {
-  "name": "job_tracker",
+  "name": "jindu_project_tracker",
   "version": "1.0.0",
-  "description": "Project in Action - [Jobify](https://www.jobify.live/)",
+  "description": "Project in Action - Jindu Project Tracker",
   "main": "index.js",
   "scripts": {
     "build": "npm install && cd client  && npm install && npm run build",
@@ -34,7 +34,6 @@
     "moment": "^2.29.4",
     "mongoose": "^6.8.3",
     "morgan": "^1.10.0",
-    "react-tabs": "^6.0.2",
     "validator": "^13.7.0",
     "xss-clean": "^0.1.1"
   },
