@@ -1,4 +1,4 @@
-import React, {  useState } from "react";
+import React from "react";
 import { FormRow, Alert, FormRowSelect } from "./";
 import { FaWpforms } from "react-icons/fa";
 import { useAppContext } from "../context/appContext";
@@ -56,7 +56,7 @@ const AddFeature = () => {
     console.log(name, value);
     handleChange({ name, value });
   };
-  const [tabIndex, setTabIndex] = useState(0);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!featureName || !featureDescription) {
@@ -112,7 +112,7 @@ const AddFeature = () => {
 
   return (
     <Wrapper>
-      <Tabs selectedIndex={tabIndex} onSelect={(index) => setTabIndex(index)}>
+      <Tabs >
         <TabList>
           <Tab>
             {" "}

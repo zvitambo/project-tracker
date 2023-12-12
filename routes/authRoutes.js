@@ -18,9 +18,9 @@ message: 'Too many requests from this IP address, please try again in 15 minutes
 router.route("/register").post(apiLimiter,register);
 router.route("/login").post(apiLimiter, login);
 
-//router.route("/users").get(authenticateUser, getAllUsers);
+router.route("/users").get(authenticateUser, getAllUsers);
 //router.route("/register").post(register);
-router.route("/login").post(login);
+//router.route("/login").post(login);
 
 router.route("/updateUser").patch(authenticateUser, updateUser);
 

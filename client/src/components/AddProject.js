@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { FormRow, Alert, FormRowSelect } from "./";
 import { FaWpforms } from "react-icons/fa";
 import { useAppContext } from "../context/appContext";
@@ -47,12 +47,7 @@ const AddProject = () => {
   } = useAppContext();
 
 
-  const [tabIndex, setTabIndex] = useState(0);
-  useEffect(() => {
-    if (!isEditing) {
-      clearValues();
-    }
-  }, [isEditing]);
+
 
   const handleInput = (e) => {
     const name = e.target.name;
@@ -102,13 +97,13 @@ const AddProject = () => {
 
   return (
     <Wrapper>
-      <Tabs selectedIndex={tabIndex} onSelect={(index) => setTabIndex(index)}>
+      <Tabs >
         <TabList>
           <Tab>
             {" "}
             <h5 className='form-text-header'>project details</h5>
           </Tab>
-          <Tab >
+          <Tab disabled={!isEditing}>
             <h5 className='form-text-header'>funding</h5>
           </Tab>
           <Tab>
