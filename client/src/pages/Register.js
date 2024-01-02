@@ -22,7 +22,7 @@ const Register = () => {
   };
 
   useEffect(() => {
-     console.log(user)
+    
     if (user) {
       setTimeout(() => {
         navigate("/");
@@ -33,7 +33,7 @@ const Register = () => {
   const onSubmit = (e) => {
     e.preventDefault();
     const { name, email, password, isMember } = values;
-    console.log(name, email, password, isMember);
+   
     if (!email || !password || (!isMember && !name)) {
       displayAlert();
       return;
@@ -45,7 +45,7 @@ const Register = () => {
     } else {
       registerUser(currentUser);
     }
-    console.log(e.target);
+    
   };
 
   const toggleMember = () => {

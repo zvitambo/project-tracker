@@ -19,10 +19,14 @@ const Landing = () => {
             <span>jindu</span> project <span>tracking</span>
           </h1>
           <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Temporibus
-            sunt ipsa nam veritatis reprehenderit facilis voluptatem, itaque
-            magni mollitia dolorum molestias tempore architecto sed facere
-            distinctio ipsum soluta. Quibusdam quo blanditiis totam.
+            Welcome to my family project tracker. This app was inspired by the
+            need to create a multi purpose platform for tracking all sorts of
+            projects, events and tasks to be carried out for the family. Giving
+            access to projects or task statuses from anywhere in the world, as
+            well as providing funding, investment and expenditure accountability
+            and tracking. Renovations, Legal processes (like estate processes), 
+            funeral , birthday party, family get together, family trip
+            planning ...the list goes on. Its a pretty flexible platform 👌👌👌
           </p>
           <Link to='/register' className='btn btn-hero'>
             Login/Register

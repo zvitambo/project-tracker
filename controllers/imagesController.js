@@ -27,12 +27,19 @@ const saveImage = async (req, res) => {
   // if (itemImage.size > maxSize) {
   //   throw new BadRequestError("Please upload image smaller 1MB");
   // }
+
+  const baseUrl = req.headers.get("origin");
+
+  
   const imagePath = path.join(
     __dirname,
     "../public/uploads/" + `${itemImage.name}`
   );
 
-  await itemImage.mv(imagePath);
+  //jindu-project-tracker.onrender.com/api/v1/images/save
+  // ENOENT: no such file or directory, open '/opt/render/project/src/public/uploads/59.jpg'
+
+  https: await itemImage.mv(imagePath);
   const itemImageUrl = `/uploads/${itemImage.name}`;
 
   return res
