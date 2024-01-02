@@ -28,7 +28,7 @@ const saveImage = async (req, res) => {
   //   throw new BadRequestError("Please upload image smaller 1MB");
   // }
 
-  const baseUrl = req.headers.get("origin");
+  //const baseUrl = req.headers.get("origin");
 
   
   const imagePath = path.join(
