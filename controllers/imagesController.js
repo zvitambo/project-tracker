@@ -33,7 +33,7 @@ const saveImage = async (req, res) => {
   
   const imagePath = path.join(
     __dirname,
-    "../opt/render/project/src/public/uploads/" + `${itemImage.name}`
+    "../public/uploads/" + `${itemImage.name}`
   );
 
   //jindu-project-tracker.onrender.com/api/v1/images/save
