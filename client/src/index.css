@@ -246,6 +246,17 @@ ul {
   margin-bottom: 1rem;
 }
 
+
+/* MEDIA QUERIES (tablets) */
+@media screen and (max-width: 600px) {
+   .form-row {
+  width: 100%;
+}
+   .form-input {
+  width: 100%;
+}
+}
+
 .form-textarea {
   height: 7rem;
 }
@@ -421,5 +432,25 @@ ul {
     margin-left: 20rem;
   }
 
+  .form-center {
+  width: 100%;
+}
+
+
+
+}
+
+
+
+@media screen and (max-device-width: 600px) {
+   .money-balance{
+  margin-right: 0.2rem;
+  float: left;
+  color: var(--light-green-dark);
+}
+  
+  .money-balance-span{
+  display: none;
+  }
 }
 

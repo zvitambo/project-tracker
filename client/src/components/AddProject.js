@@ -48,11 +48,10 @@ const AddProject = () => {
 
 
 
-
   const handleInput = (e) => {
     const name = e.target.name;
     const value = e.target.value;
-   
+
     handleChange({ name, value });
   };
 
@@ -97,10 +96,9 @@ const AddProject = () => {
 
   return (
     <Wrapper>
-      <Tabs on>
+      <Tabs>
         <TabList>
           <Tab>
-            {" "}
             <h5 className='form-text-header'>project details</h5>
           </Tab>
           <Tab disabled={!isEditing}>
@@ -135,7 +133,8 @@ const AddProject = () => {
             )}
             {isEditing && (
               <h4 className='money-balance'>
-                operating balance: {` ${operatingBalance}`}
+                <span className='money-balance-span'>Operating</span> Balance:{" "}
+                {` ${operatingBalance}`}
               </h4>
             )}
             <hr className='hr-center' />
