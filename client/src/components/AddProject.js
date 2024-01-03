@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
 import { FormRow, Alert, FormRowSelect } from "./";
-import { FaWpforms } from "react-icons/fa";
+import { FaWpforms, FaPlus } from "react-icons/fa";
 import { useAppContext } from "../context/appContext";
 import Wrapper from "../assets/wrappers/DashboardFormPage";
 import { Link } from "react-router-dom";
@@ -128,7 +128,7 @@ const AddProject = () => {
                   setIsFeature(editProjectId);
                 }}
               >
-                add task/feature
+                <FaPlus /> task / feature
               </Link>
             )}
             {isEditing && (
