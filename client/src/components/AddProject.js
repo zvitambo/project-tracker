@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
 import { FormRow, Alert, FormRowSelect } from "./";
-import { FaWpforms } from "react-icons/fa";
+import { FaWpforms, FaPlus } from "react-icons/fa";
 import { useAppContext } from "../context/appContext";
 import Wrapper from "../assets/wrappers/DashboardFormPage";
 import { Link } from "react-router-dom";
@@ -48,11 +48,10 @@ const AddProject = () => {
 
 
 
-
   const handleInput = (e) => {
     const name = e.target.name;
     const value = e.target.value;
-   
+
     handleChange({ name, value });
   };
 
@@ -97,10 +96,9 @@ const AddProject = () => {
 
   return (
     <Wrapper>
-      <Tabs on>
+      <Tabs>
         <TabList>
           <Tab>
-            {" "}
             <h5 className='form-text-header'>project details</h5>
           </Tab>
           <Tab disabled={!isEditing}>
@@ -130,12 +128,13 @@ const AddProject = () => {
                   setIsFeature(editProjectId);
                 }}
               >
-                add task/feature
+                <FaPlus /> task / feature
               </Link>
             )}
             {isEditing && (
               <h4 className='money-balance'>
-                operating balance: {` ${operatingBalance}`}
+                <span className='money-balance-span'>Operating</span> Balance:{" "}
+                {` ${operatingBalance}`}
               </h4>
             )}
             <hr className='hr-center' />
