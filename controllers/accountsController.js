@@ -1,5 +1,8 @@
+const moment = require("moment");
+
 const Project = require("../models/Project");
 const Feature = require("../models/Feature");
+const User = require("../models/User");
 
 const {
   createMasterAccountTransaction,
@@ -408,17 +411,40 @@ const getProjectOperatingCosts = async (req, res) => {
   let funding = 0;
   let expenditure = 0;
   let operatingBalance = 0;
-
+  let transactionHistory = {};
 
   //expenditure
   const features = await Feature.find({ project: projectId });
   if (features) {
     for (let feature of features) {
-      const transactions = await DebitTransaction.find({ feature: feature });
+      const transactions = await DebitTransaction.find({
+        feature: feature,
+      }).populate(["createdBy", "feature"]);
+
+      // transactionHistory["expenditure"] = transactions;
+
+      transactionHistory["expenditure"] = transactions.map((transaction) => {
+        transactionObject = transaction.toObject();
+        const formattedAmount = formatToLocaleCurrency(
+          parseInt(transactionObject.amount)
+        );
+        //transaction.amount = formattedAmount;\
+
+        //const user = await User.findOne({_id: transaction.createdBy});
+        let date = moment(transactionObject["createdAt"]);
+        date = date.format("MMM Do, YYYY");
+        transactionObject["createdBy"] = transactionObject["createdBy"].name;
+        transactionObject["createdAt"] = date;
+        transactionObject["feature"] = transactionObject["feature"].featureName;
+        transactionObject["amount"] = formattedAmount;
+        return transactionObject;
+      });
 
       if (transactions) {
         for (let transaction of transactions) {
-          expenditure += parseInt(transaction.amount);
+          if (!transaction.deleted) {
+            expenditure += parseInt(transaction.amount);
+          }
         }
       }
     }
@@ -427,19 +453,25 @@ const getProjectOperatingCosts = async (req, res) => {
   //funding
   const transactions = await CreditTransaction.find({ project: projectId });
 
+  transactionHistory["funding"] = transactions;
+
   if (transactions) {
     for (let transaction of transactions) {
-      funding += parseInt(transaction.amount);
+      if (!transaction.deleted) {
+        funding += parseInt(transaction.amount);
+      }
     }
   }
-//operating balance
-  operatingBalance = funding - expenditure
+  //operating balance
+  operatingBalance = funding - expenditure;
 
   funding = formatToLocaleCurrency(funding);
   expenditure = formatToLocaleCurrency(expenditure);
   operatingBalance = formatToLocaleCurrency(operatingBalance);
 
-  res.status(StatusCodes.OK).json({ operatingBalance, funding, expenditure });
+  res
+    .status(StatusCodes.OK)
+    .json({ operatingBalance, funding, expenditure, transactionHistory });
 };
 
 module.exports = {

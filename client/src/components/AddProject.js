@@ -10,6 +10,7 @@ import "react-tabs/style/react-tabs.css";
 import UploadImage from "./UploadImage";
 import ImageDisplay from "./ImageDisplay";
 import FormButtonLayout from "./FormButtonLayout";
+import TransactionsDisplay from './TransactionsDisplay';
 
 //import { useEffect } from "react";
 
@@ -106,6 +107,9 @@ const AddProject = () => {
           </Tab>
           <Tab>
             <h5 className='form-text-header'>Attachments</h5>
+          </Tab>
+          <Tab>
+            <h5 className='form-text-header'>Transaction History</h5>
           </Tab>
         </TabList>
 
@@ -270,6 +274,9 @@ const AddProject = () => {
         </TabPanel>
         <TabPanel>
           <ImageDisplay />
+        </TabPanel>
+        <TabPanel>
+          <TransactionsDisplay />
         </TabPanel>
       </Tabs>
     </Wrapper>
