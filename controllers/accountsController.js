@@ -1,4 +1,4 @@
-const moment = require("moment");
+
 
 const Project = require("../models/Project");
 const Feature = require("../models/Feature");
@@ -25,9 +25,11 @@ const {
   BadRequestError,
   UnauthenticatedError,
   NotFoundError,
+  CustomApiError,
 } = require("../errors");
 const checkPermissions = require("../utils/checkPermissions");
 const { formatToLocaleCurrency } = require("../utils/currencyFormat");
+const { formatDate } = require("../utils/dateFormatter");
 
 const getMasterAccount = async (req, res) => {
   const { date, search, searchByTransaction, sort } = req.query;
@@ -431,10 +433,11 @@ const getProjectOperatingCosts = async (req, res) => {
         //transaction.amount = formattedAmount;\
 
         //const user = await User.findOne({_id: transaction.createdBy});
-        let date = moment(transactionObject["createdAt"]);
-        date = date.format("MMM Do, YYYY");
+        
         transactionObject["createdBy"] = transactionObject["createdBy"].name;
-        transactionObject["createdAt"] = date;
+        transactionObject["transactionDate"] = formatDate(
+          transactionObject["createdAt"]
+        );
         transactionObject["feature"] = transactionObject["feature"].featureName;
         transactionObject["amount"] = formattedAmount;
         return transactionObject;
@@ -465,13 +468,29 @@ const getProjectOperatingCosts = async (req, res) => {
   //operating balance
   operatingBalance = funding - expenditure;
 
+  const transactionArr = [
+    ...transactionHistory["expenditure"],
+    ...transactionHistory["funding"],
+  ];
+
+  transactionArr.sort(function(a,b){
+  // Turn your strings into dates, and then subtract them
+  // to get a value that is either negative, positive, or zero.
+  return new Date(b.createdAt) - new Date(a.createdAt);
+}),
+   
   funding = formatToLocaleCurrency(funding);
   expenditure = formatToLocaleCurrency(expenditure);
   operatingBalance = formatToLocaleCurrency(operatingBalance);
 
   res
     .status(StatusCodes.OK)
-    .json({ operatingBalance, funding, expenditure, transactionHistory });
+    .json({
+      operatingBalance,
+      funding,
+      expenditure,
+      transactionHistory,
+      transactionArr});
 };
 
 module.exports = {
