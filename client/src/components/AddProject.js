@@ -45,6 +45,9 @@ const AddProject = () => {
     imageStatus,
     operatingBalance,
     funding,
+     expenditure,
+     positiveBalance,
+    transactionArr,
   } = useAppContext();
 
 
@@ -276,7 +279,13 @@ const AddProject = () => {
           <ImageDisplay />
         </TabPanel>
         <TabPanel>
-          <TransactionsDisplay />
+          <TransactionsDisplay
+            transactionArr={transactionArr}
+            funding={funding}
+            expenditure={expenditure}
+            operatingBalance={operatingBalance}
+            positiveBalance={positiveBalance}
+          />
         </TabPanel>
       </Tabs>
     </Wrapper>

@@ -223,6 +223,8 @@ const reducer = (state, action) => {
         operatingBalance: "$0.00",
         funding: "$0.00",
         expenditure: "$0.00",
+        transactionArr: [],
+        positiveBalance: false,
 
         //Images
         formData: new FormData(),
@@ -684,16 +686,20 @@ const reducer = (state, action) => {
     case GET_PROJECT_OPERATING_COSTS_BEGIN:
       return {
         ...state,
+        transactionArr: [],
         operatingBalance: "$0.00",
         funding: "$0.00",
         expenditure: "$0.00",
+        positiveBalance: false,
       };
     case GET_PROJECT_OPERATING_COSTS_SUCCESS:
       return {
         ...state,
+        transactionArr: action.payload.transactionArr,
         operatingBalance: action.payload.operatingBalance,
         funding: action.payload.funding,
         expenditure: action.payload.expenditure,
+        positiveBalance: action.payload.positiveBalance,
       };
     default:
       return state;

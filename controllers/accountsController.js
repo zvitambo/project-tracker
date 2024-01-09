@@ -423,23 +423,18 @@ const getProjectOperatingCosts = async (req, res) => {
         feature: feature,
       }).populate(["createdBy", "feature"]);
 
-      // transactionHistory["expenditure"] = transactions;
-
       transactionHistory["expenditure"] = transactions.map((transaction) => {
         transactionObject = transaction.toObject();
         const formattedAmount = formatToLocaleCurrency(
-          parseInt(transactionObject.amount)
+          parseInt(transactionObject.amount)/100
         );
-        //transaction.amount = formattedAmount;\
-
-        //const user = await User.findOne({_id: transaction.createdBy});
-        
+        transactionObject["transaction_action"] = "dr";
         transactionObject["createdBy"] = transactionObject["createdBy"].name;
         transactionObject["transactionDate"] = formatDate(
           transactionObject["createdAt"]
         );
         transactionObject["feature"] = transactionObject["feature"].featureName;
-        transactionObject["amount"] = formattedAmount;
+       transactionObject["amount"] = formattedAmount;
         return transactionObject;
       });
 
@@ -454,9 +449,31 @@ const getProjectOperatingCosts = async (req, res) => {
   }
 
   //funding
-  const transactions = await CreditTransaction.find({ project: projectId });
+  const transactions = await CreditTransaction.find({
+    project: projectId,
+  }).populate(["createdBy", "project", "account_holder"]);
 
   transactionHistory["funding"] = transactions;
+
+   transactionHistory["funding"] = transactions.map((transaction) => {
+     transactionObject = transaction.toObject();
+     const formattedAmount = formatToLocaleCurrency(
+       parseInt(transactionObject.amount)/100
+     );
+transactionObject["transaction_action"] = "cr";
+     transactionObject["createdBy"] = transactionObject["createdBy"].name;
+     transactionObject["account_holder"] =
+       transactionObject["account_holder"].name;
+     transactionObject["transactionDate"] = formatDate(
+       transactionObject["createdAt"]
+     );
+     transactionObject["project"] = transactionObject["project"].name;
+     transactionObject["description"] =
+       transactionObject["project"]["description"];
+    transactionObject["amount"] = formattedAmount;
+     return transactionObject;
+   });
+
 
   if (transactions) {
     for (let transaction of transactions) {
@@ -472,12 +489,13 @@ const getProjectOperatingCosts = async (req, res) => {
     ...transactionHistory["expenditure"],
     ...transactionHistory["funding"],
   ];
+  const positiveBalance = operatingBalance > 0;
 
-  transactionArr.sort(function(a,b){
-  // Turn your strings into dates, and then subtract them
-  // to get a value that is either negative, positive, or zero.
-  return new Date(b.createdAt) - new Date(a.createdAt);
-}),
+  transactionArr.sort(function (a, b) {
+    // Turn your strings into dates, and then subtract them
+    // to get a value that is either negative, positive, or zero.
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  }),
    
   funding = formatToLocaleCurrency(funding);
   expenditure = formatToLocaleCurrency(expenditure);
@@ -489,6 +507,7 @@ const getProjectOperatingCosts = async (req, res) => {
       operatingBalance,
       funding,
       expenditure,
+      positiveBalance,
       transactionHistory,
       transactionArr});
 };
