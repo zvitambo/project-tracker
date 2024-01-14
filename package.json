@@ -4,7 +4,7 @@
   "description": "Project in Action - Jindu Project Tracker",
   "main": "index.js",
   "scripts": {
-    "build": "npm install && cd client  && npm install && npm run build",
+    "build": "npm install && cd client  && npm install && npm run build --output public/build",
     "build-client": "cd client && npm run build",
     "install-client": "cd client && npm install",
     "heroku-postbuild": "npm run install-client && npm run build-client",
@@ -17,7 +17,7 @@
   "license": "ISC",
   "devDependencies": {
     "concurrently": "^7.6.0",
-    "nodemon": "^2.0.20"
+    "nodemon": "^2.0.22"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
