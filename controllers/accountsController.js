@@ -1,5 +1,8 @@
+
+
 const Project = require("../models/Project");
 const Feature = require("../models/Feature");
+const User = require("../models/User");
 
 const {
   createMasterAccountTransaction,
@@ -22,9 +25,11 @@ const {
   BadRequestError,
   UnauthenticatedError,
   NotFoundError,
+  CustomApiError,
 } = require("../errors");
 const checkPermissions = require("../utils/checkPermissions");
 const { formatToLocaleCurrency } = require("../utils/currencyFormat");
+const { formatDate } = require("../utils/dateFormatter");
 
 const getMasterAccount = async (req, res) => {
   const { date, search, searchByTransaction, sort } = req.query;
@@ -408,38 +413,103 @@ const getProjectOperatingCosts = async (req, res) => {
   let funding = 0;
   let expenditure = 0;
   let operatingBalance = 0;
-
+  let transactionHistory = {};
 
   //expenditure
   const features = await Feature.find({ project: projectId });
   if (features) {
     for (let feature of features) {
-      const transactions = await DebitTransaction.find({ feature: feature });
+      const transactions = await DebitTransaction.find({
+        feature: feature,
+      }).populate(["createdBy", "feature"]);
+
+      transactionHistory["expenditure"] = transactions.map((transaction) => {
+        transactionObject = transaction.toObject();
+        const formattedAmount = formatToLocaleCurrency(
+          parseInt(transactionObject.amount)/100
+        );
+        transactionObject["transaction_action"] = "dr";
+        transactionObject["createdBy"] = transactionObject["createdBy"].name;
+        transactionObject["transactionDate"] = formatDate(
+          transactionObject["createdAt"]
+        );
+        transactionObject["feature"] = transactionObject["feature"].featureName;
+       transactionObject["amount"] = formattedAmount;
+        return transactionObject;
+      });
 
       if (transactions) {
         for (let transaction of transactions) {
-          expenditure += parseInt(transaction.amount);
+          if (!transaction.deleted) {
+            expenditure += parseInt(transaction.amount);
+          }
         }
       }
     }
   }
 
   //funding
-  const transactions = await CreditTransaction.find({ project: projectId });
+  const transactions = await CreditTransaction.find({
+    project: projectId,
+  }).populate(["createdBy", "project", "account_holder"]);
+
+  transactionHistory["funding"] = transactions;
+
+   transactionHistory["funding"] = transactions.map((transaction) => {
+     transactionObject = transaction.toObject();
+     const formattedAmount = formatToLocaleCurrency(
+       parseInt(transactionObject.amount)/100
+     );
+transactionObject["transaction_action"] = "cr";
+     transactionObject["createdBy"] = transactionObject["createdBy"].name;
+     transactionObject["account_holder"] =
+       transactionObject["account_holder"].name;
+     transactionObject["transactionDate"] = formatDate(
+       transactionObject["createdAt"]
+     );
+     transactionObject["project"] = transactionObject["project"].name;
+     transactionObject["description"] =
+       transactionObject["project"]["description"];
+    transactionObject["amount"] = formattedAmount;
+     return transactionObject;
+   });
+
 
   if (transactions) {
     for (let transaction of transactions) {
-      funding += parseInt(transaction.amount);
+      if (!transaction.deleted) {
+        funding += parseInt(transaction.amount);
+      }
     }
   }
-//operating balance
-  operatingBalance = funding - expenditure
+  //operating balance
+  operatingBalance = funding - expenditure;
 
+  const transactionArr = [
+    ...transactionHistory["expenditure"],
+    ...transactionHistory["funding"],
+  ];
+  const positiveBalance = operatingBalance > 0;
+
+  transactionArr.sort(function (a, b) {
+    // Turn your strings into dates, and then subtract them
+    // to get a value that is either negative, positive, or zero.
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  }),
+   
   funding = formatToLocaleCurrency(funding);
   expenditure = formatToLocaleCurrency(expenditure);
   operatingBalance = formatToLocaleCurrency(operatingBalance);
 
-  res.status(StatusCodes.OK).json({ operatingBalance, funding, expenditure });
+  res
+    .status(StatusCodes.OK)
+    .json({
+      operatingBalance,
+      funding,
+      expenditure,
+      positiveBalance,
+      transactionHistory,
+      transactionArr});
 };
 
 module.exports = {
