@@ -179,9 +179,11 @@ export const initialState = {
   debitTransactionStatus: "Complete",
   debitTransactionDescription: "",
 
+   transactionArr: [],
   operatingBalance: "$0.00",
   funding: "$0.00",
   expenditure: "$0.00",
+  positiveBalance: false,
 
   formData: new FormData(),
   //Images
@@ -704,14 +706,22 @@ const AppProvider = ({ children }) => {
     dispatch({ type: GET_PROJECT_OPERATING_COSTS_BEGIN });
     try {
       const { data } = await authFetch(url);
-      const { operatingBalance, funding, expenditure } = data;
+      const {
+        transactionArr,
+        operatingBalance,
+        funding,
+        expenditure,
+        positiveBalance,
+      } = data;
 
       dispatch({
         type: GET_PROJECT_OPERATING_COSTS_SUCCESS,
         payload: {
+          transactionArr,
           operatingBalance,
           funding,
           expenditure,
+          positiveBalance,
         },
       });
     } catch (error) {
