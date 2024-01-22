@@ -22,6 +22,7 @@ const Navbar = () => {
               height='120px'
               marginTop='20px'
               marginBottom='10px'
+              marginLeft='-34px'
             />
           )}
 
