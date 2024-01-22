@@ -131,7 +131,8 @@ const TransactionsDisplay = ({
       ];
        const getMobileColumns = () => [
          { columnId: "Total Funding", width: 100 },
-         { columnId: "Total Expenditure", width: 125 },
+         { columnId: "Total Expenditure", width: 125
+         },
          { columnId: "Balance", width: 100 },
        ];
 
