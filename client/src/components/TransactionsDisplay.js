@@ -107,7 +107,48 @@ const TransactionsDisplay = ({
   const rows = getRows(transactionArr);
   const columns = getColumns();
 
-  return <ReactGrid rows={rows} columns={columns} />;
+
+
+    const mobileHeaderRow = {
+      rowId: "mobileHeader",
+      cells: [
+        { type: "header", text: "Total Funding" },
+        { type: "header", text: "Total Expenditure" },
+        { type: "header", text: "Balance" },
+      ],
+    };
+
+      const mobileValuesRow = [
+        {
+          rowId: "mobileValuesRow",
+          cells: [
+            
+            { type: "text", text: funding },
+            { type: "text", text: expenditure },
+            { type: "text", text: operatingBalance },
+          ],
+        },
+      ];
+       const getMobileColumns = () => [
+         { columnId: "Total Funding", width: 100 },
+         { columnId: "Total Expenditure", width: 125 },
+         { columnId: "Balance", width: 100 },
+       ];
+
+        const getMobilesRows = () => [mobileHeaderRow, ...mobileValuesRow];
+        const mobileRows = getMobilesRows();
+        const mobileColumns = getMobileColumns();
+
+  return (
+    <>
+      <div className='show-transaction-history'>
+        <ReactGrid rows={rows} columns={columns} />
+      </div>
+      <div className='hide-transaction-history'>
+        <ReactGrid rows={mobileRows} columns={mobileColumns} />
+      </div>
+    </>
+  );
 };
 
 export default TransactionsDisplay
