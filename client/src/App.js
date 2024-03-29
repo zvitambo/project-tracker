@@ -7,6 +7,7 @@ import {
   AddJob,
   AllJobs,
   Profile,
+  Admin,
   Stats,
   SharedLayout,
   FormLayout,
@@ -29,14 +30,12 @@ function App() {
           <Route index element={<Stats />} />
           <Route path='add-project' element={<FormLayout />} />
           <Route path='all-projects' element={<AllProjects />} />
-          <Route
-            path='add-feature'
-            element={<AddFeature  />}
-          />
+          <Route path='add-feature' element={<AddFeature />} />
           <Route path='all-features' element={<AllFeatures />} />
           <Route path='add-job' element={<AddJob />} />
           <Route path='all-jobs' element={<AllJobs />} />
           <Route path='profile' element={<Profile />} />
+          <Route path='admin' element={<Admin />} />
         </Route>
 
         <Route path='/register' element={<Register />} />

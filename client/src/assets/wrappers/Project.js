@@ -19,7 +19,7 @@ const Wrapper = styled.article`
     }
     div.ProjectInfo {
       margin-bottom: -0rem;
-     // margin-left: 16rem;
+      // margin-left: 16rem;
     }
   }
   .project-main-icon {
@@ -101,6 +101,11 @@ const Wrapper = styled.article`
   .delete-btn {
     color: var(--red-dark);
     background: var(--red-light);
+  }
+
+  .deactivated-btn {
+    color: var(--grey-400);
+    background: var(--grey-100);
   }
   &:hover .actions {
     visibility: visible;

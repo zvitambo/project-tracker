@@ -1,6 +1,6 @@
 import React from 'react'
 
-const FormRowSelect = ({name,value,  labelText,handleChange, list}) => {
+const FormRowSelect = ({name,value,  labelText,handleChange, list, editable}) => {
   return (
     <div className='form-row'>
       <label htmlFor={name} className='form-label'>
@@ -11,6 +11,7 @@ const FormRowSelect = ({name,value,  labelText,handleChange, list}) => {
         className='form-select'
         value={value}
         onChange={handleChange}
+        disabled={!editable}
       >
         {list.map((itemValue, index) => {
           if (typeof itemValue === 'object'){

@@ -30,6 +30,8 @@ import {
   CHANGE_PAGE,
   GET_USERS_BEGIN,
   GET_USERS_SUCCESS,
+  ACTIVATE_USER_BEGIN,
+  ACTIVATE_USER_SUCCESS,
   CREATE_PROJECT_BEGIN,
   CREATE_PROJECT_SUCCESS,
   CREATE_PROJECT_ERROR,
@@ -132,6 +134,8 @@ const reducer = (state, action) => {
         isLoading: false,
         token: action.payload.token,
         user: action.payload.user,
+        isAdmin:
+          action.payload.user.role && action.payload.user.role === "admin",
         userLocation: action.payload.location,
         jobLocation: action.payload.location,
       };
@@ -191,6 +195,9 @@ const reducer = (state, action) => {
       const newInitialState = {
         isEditing: false,
         isEditingFeature: false,
+        //isAdmin: false,
+        //user: null,
+        //canEdit: false,
         editJobId: "",
         position: "",
         company: "",
@@ -360,6 +367,22 @@ const reducer = (state, action) => {
         totalUsers: action.payload.totalUsers,
         numOfPages: action.payload.numOfPages,
       };
+    case ACTIVATE_USER_BEGIN:
+      return {
+        ...state,
+        isLoading: true,
+        showAlert: false,
+      };
+    case ACTIVATE_USER_SUCCESS:
+      console.log("users - before", state.users);
+      const user = state.users.find((user) => user._id === action.payload.user._id);
+      user.isActive = action.payload.user.isActive;
+      console.log("users - after", state.users);
+      return {
+        ...state,
+        isLoading: false,
+       // users: action.payload.user,
+      };
     //Projects
     case CREATE_PROJECT_BEGIN:
       return {
@@ -415,11 +438,20 @@ const reducer = (state, action) => {
         description,
         projectCategory,
         projectStatus,
+        createdBy,
       } = project;
+      // console.log(
+      //   "JSON.parse(action.payload.user)",
+      //   JSON.parse(action.payload.user)?._id
+      // );
+      // console.log("createdBy", createdBy);
       return {
         ...state,
         isEditing: true,
         isProject: true,
+        canEdit:
+          action.payload.user &&
+          JSON.parse(action.payload.user)?._id === createdBy.toString(),
         editProjectId: projectId,
         editFeatureUUID: projectUUID,
         name,
@@ -532,6 +564,7 @@ const reducer = (state, action) => {
         featureCategory,
         featureStatus,
         project: featureProject,
+        createdBy: featureCreatedBy,
       } = feature;
       return {
         ...state,
@@ -544,6 +577,9 @@ const reducer = (state, action) => {
         featureCategory,
         featureStatus,
         editProjectId: featureProject,
+        canEdit:
+          action.payload.user &&
+          JSON.parse(action.payload.user)._id === featureCreatedBy,
         // featureProject: featureProject,
       };
     case DELETE_FEATURE_BEGIN:

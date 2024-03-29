@@ -45,12 +45,17 @@ const AddProject = () => {
     imageStatus,
     operatingBalance,
     funding,
-     expenditure,
-     positiveBalance,
+    expenditure,
+    positiveBalance,
     transactionArr,
+    isAdmin,
+    canEdit,
   } = useAppContext();
 
-
+console.log("canEdit - ", canEdit);
+console.log("isAdmin - ", isAdmin);
+const editable = isAdmin || canEdit;
+console.log("canEdit - ", canEdit);
 
   const handleInput = (e) => {
     const name = e.target.name;
@@ -151,12 +156,14 @@ const AddProject = () => {
                 name='name'
                 value={name}
                 handleChange={handleInput}
+                
               />
               <FormRow
                 type='text'
                 name='description'
                 value={description}
                 handleChange={handleInput}
+                
               />
 
               <FormRowSelect
@@ -165,6 +172,7 @@ const AddProject = () => {
                 value={projectCategory}
                 handleChange={handleInput}
                 list={projectCategoryOptions}
+                editable={editable}
               />
 
               <FormRowSelect
@@ -173,13 +181,16 @@ const AddProject = () => {
                 value={projectStatus}
                 handleChange={handleInput}
                 list={projectStatusOptions}
+                editable={editable}
               />
-              {<UploadImage />}
+              {<UploadImage editable={editable} />}
               <FormButtonLayout
                 singleDiv={true}
                 isLoading={isLoading}
                 handleSubmit={handleSubmit}
                 clearValues={clearValues}
+                editable={editable}
+                isEditing={isEditing}
               />
 
               {/* <div className={isEditing ? 'btn-container': ''}>

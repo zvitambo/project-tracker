@@ -7,8 +7,8 @@ const FormRow = ({
   handleChange,
   labelText,
   placeholderText,
+  editable,
 }) => {
-  
   return (
     <>
       <div className='form-row'>
@@ -24,12 +24,13 @@ const FormRow = ({
           className='form-input switch-checkbox'
           placeholder={placeholderText}
           id={`switch`}
+          disabled={!editable}
         />
         {labelText || name}
 
         <label
           style={{
-            background: "#2cb1bc"
+            background: "#2cb1bc",
           }}
           className='switch-label'
           htmlFor={`switch`}

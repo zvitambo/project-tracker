@@ -14,7 +14,7 @@ const Project = ({
   projectStatus,
   createdAt,
 }) => {
-  const { setEditProject, deleteProject } = useAppContext();
+  const { setEditProject, deleteProject, isAdmin} = useAppContext();
   let date = moment(createdAt);
   date = date.format("MMM Do, YYYY");
   return (
@@ -46,11 +46,13 @@ const Project = ({
               className='btn edit-btn'
               onClick={() => setEditProject(_id)}
             >
-              Edit
+              {isAdmin ? "Edit/View" : "View"}
             </Link>
+
             <button
-              className='btn delete-btn'
+              className={`btn ${isAdmin ? "delete-btn" : "deactivated-btn"}`}
               onClick={() => deleteProject(_id)}
+              disabled={!isAdmin}
             >
               Delete
             </button>

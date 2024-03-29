@@ -4,12 +4,14 @@ import { useAppContext } from "../../context/appContext";
 import Wrapper from "../../assets/wrappers/DashboardFormPage";
 
 const Profile = () => {
-  const { user, showAlert, displayAlert, updateUser, isLoading } =
+  const { user, showAlert, displayAlert, updateUser, isLoading, isAdmin } =
     useAppContext();
   const [name, setName] = useState(user?.name);
   const [email, setEmail] = useState(user?.email);
   const [lastName, setLastName] = useState(user?.lastName);
   const [location, setLocation] = useState(user?.location);
+
+  console.log("user_isAdmin", isAdmin)
 
   const handleSubmit = (e) => {
     e.preventDefault();

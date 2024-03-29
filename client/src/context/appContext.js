@@ -37,6 +37,8 @@ import {
   //USERS
   GET_USERS_BEGIN,
   GET_USERS_SUCCESS,
+  ACTIVATE_USER_BEGIN,
+  ACTIVATE_USER_SUCCESS,
   //PROJECTS
   CREATE_PROJECT_BEGIN,
   CREATE_PROJECT_SUCCESS,
@@ -101,6 +103,9 @@ export const initialState = {
   alertText: "",
   alertType: "",
   user: JSON.parse(user) || null,
+  isAdmin: false,
+  canEdit: false,
+  editable: false,
   token: token || null,
   userLocation: userLocation || "",
   showSidebar: false,
@@ -699,6 +704,26 @@ const AppProvider = ({ children }) => {
     clearAlert();
   };
 
+
+    const activateUser = async (email) => {
+      let url = `/auth/activate/`;
+
+      dispatch({ type: ACTIVATE_USER_BEGIN });
+      try {
+        const { data } = await authFetch.patch(url, {email});
+        const { user } = data;
+
+        dispatch({
+          type: ACTIVATE_USER_SUCCESS,
+          payload: {
+            user,
+          },
+        });
+      } catch (error) {
+        //logoutUser();
+      }
+      clearAlert();
+    };
   const getProjectOperatingCosts = async (projectId) => {
     //const { editProjectId } = state;
     let url = `/accounts/project/?projectId=${projectId}`;
@@ -763,13 +788,13 @@ const AppProvider = ({ children }) => {
   };
 
   const setEditProject = (id) => {
-    dispatch({ type: SET_EDIT_PROJECT, payload: { id } });
+    dispatch({ type: SET_EDIT_PROJECT, payload: { id, user } });
     getProjectOperatingCosts(id);
   };
 
   const setEditFeature = (id, project) => {
     dispatch({ type: CLEAR_VALUES });
-    dispatch({ type: SET_EDIT_FEATURE, payload: { id } });
+    dispatch({ type: SET_EDIT_FEATURE, payload: { id, user} });
     getProjectOperatingCosts(project);
   };
 
@@ -976,6 +1001,8 @@ const AppProvider = ({ children }) => {
     dispatch({ type: SET_IMAGE_UPLOAD });
   };
 
+  
+
   return (
     <AppContext.Provider
       value={{
@@ -998,6 +1025,7 @@ const AppProvider = ({ children }) => {
         changePage,
         //Users
         getUsers,
+        activateUser,
         //Projects
         createProject,
         getProjects,

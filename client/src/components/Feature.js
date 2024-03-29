@@ -16,7 +16,7 @@ const Feature = ({
   createdAt,
 }) => {
  
-  const { setEditFeature, deleteFeature } = useAppContext();
+  const { setEditFeature, deleteFeature, isAdmin } = useAppContext();
   let date = moment(createdAt);
   date = date.format("MMM Do, YYYY");
   return (
@@ -50,11 +50,13 @@ const Feature = ({
               className='btn edit-btn'
               onClick={() => setEditFeature(_id, project)}
             >
-              Edit/View
+              {isAdmin ? "Edit/View" : "View"}
             </Link>
+
             <button
-              className='btn delete-btn'
+              className={`btn ${isAdmin ? "delete-btn" : "deactivated-btn"}`}
               onClick={() => deleteFeature(_id)}
+              disabled={!isAdmin}
             >
               Delete
             </button>

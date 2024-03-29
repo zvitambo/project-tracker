@@ -5,6 +5,7 @@ const {
   login,
   updateUser,
   getAllUsers,
+  activateUserAccount,
 } = require("../controllers/authController"); 
 const router = express.Router();
 const authenticateUser = require('../middleware/auth')
@@ -23,6 +24,7 @@ router.route("/users").get(authenticateUser, getAllUsers);
 //router.route("/login").post(login);
 
 router.route("/updateUser").patch(authenticateUser, updateUser);
+router.route("/activate").patch(authenticateUser, activateUserAccount);
 
 
 module.exports = router; 

@@ -42,6 +42,8 @@ const AddFeature = () => {
     imageStatus,
     //imageOwner,
     // createImage,
+    isEditing,
+    isAdmin,
   } = useAppContext();
 
   const handleInput = (e) => {
@@ -112,7 +114,7 @@ const AddFeature = () => {
 
   return (
     <Wrapper>
-      <Tabs >
+      <Tabs>
         <TabList>
           <Tab>
             {" "}
@@ -184,6 +186,8 @@ const AddFeature = () => {
                 isLoading={isLoading}
                 handleSubmit={handleSubmit}
                 clearValues={clearValues}
+                isAdmin={isAdmin}
+                isEditing={isEditing}
               />
 
               {/* <div className='btn-separate-container'>

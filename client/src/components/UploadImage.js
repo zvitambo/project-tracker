@@ -10,7 +10,8 @@ const UploadImage = () => {
     imageDescription,
     imageStatusOptions,
     imageStatus,
-   // setImageUpload,
+    editable,
+    // setImageUpload,
   } = useAppContext();
 
   const handleInput = (e) => {
@@ -49,6 +50,7 @@ const UploadImage = () => {
           value={uploadAttachment}
           handleChange={handleInput}
           labelText='Add Attachment ?'
+          editable={editable}
         />
       }
       {uploadAttachment && (
