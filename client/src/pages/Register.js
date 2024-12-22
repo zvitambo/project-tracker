@@ -43,7 +43,7 @@ const Register = () => {
     if (isMember) {
       loginUser(currentUser);
     } else {
-      registerUser(currentUser);
+      //registerUser(currentUser);
     }
     
   };
